@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>New Movement</title>
+</head>
+<body>
+    <h2 th:text="${action}+' Movement'"></h2>
+
+    <div>
+        <form  th:action="${okButtonUrl}" th:object="${movement}" method="POST">
+            <input type="hidden" th:field="${movement.id}" />
+            <input type="date" th:field="${movement.valueDate}" th:disabled="${disableFormFields}" /> <br/>
+            <select th:field="${movement.flagAmountPositive}" th:disabled="${disableFormFields}">
+                <option value="true">income</option>
+                <option value="false">expense</option>
+            </select>
+            <input type="number" step="0.01" th:field="${movement.unsignedAmount}" th:disabled="${disableFormFields}"><br/>
+            <input type="text" placeholder="Name" th:field="${movement.name}" th:disabled="${disableFormFields}"/> <br/>
+            <textarea type="text" placeholder="Description" th:field="${movement.description}" th:disabled="${disableFormFields}"/> <br/>
+            <select th:field="${movement.categoryId}" th:disabled="${disableFormFields}">
+                <option th:each="category: ${categories}" th:value="${category.id}" th:text="${category.name}"></option>
+            </select> <br/>
+
+            <button type="submit" th:text="${action}"></button> <br/>
+            <a th:href="${baseUrl}">Back</a>
+        </form>
+    </div>
+</body>
+</html>
