@@ -1,8 +1,9 @@
-package com.ryanev.personalfinancetracker.dto.implementations;
+package com.ryanev.personalfinancetracker.dto.movements.implementations;
 
-import com.ryanev.personalfinancetracker.dto.MovementViewDTO;
+import com.ryanev.personalfinancetracker.dto.movements.MovementViewDTO;
 import com.ryanev.personalfinancetracker.entities.Movement;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 public class MovementViewDtoAdapter implements MovementViewDTO {
@@ -19,7 +20,7 @@ public class MovementViewDtoAdapter implements MovementViewDTO {
     }
 
     @Override
-    public Date getValueDate() {
+    public LocalDate getValueDate() {
         return sourceMovement.getValueDate();
     }
 

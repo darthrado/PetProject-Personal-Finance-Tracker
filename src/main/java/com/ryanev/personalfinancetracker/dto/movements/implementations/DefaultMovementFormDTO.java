@@ -1,14 +1,15 @@
-package com.ryanev.personalfinancetracker.dto.implementations;
+package com.ryanev.personalfinancetracker.dto.movements.implementations;
 
-import com.ryanev.personalfinancetracker.dto.MovementFormDTO;
+import com.ryanev.personalfinancetracker.dto.movements.MovementFormDTO;
 import com.ryanev.personalfinancetracker.entities.Movement;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 public class DefaultMovementFormDTO implements MovementFormDTO {
     private Long id;
     private Double unsignedAmount;
-    private Date valueDate;
+    private LocalDate valueDate;
     private String name;
     private Long categoryId;
     private Boolean flagAmountPositive;
@@ -52,12 +53,12 @@ public class DefaultMovementFormDTO implements MovementFormDTO {
     }
 
     @Override
-    public Date getValueDate() {
+    public LocalDate getValueDate() {
         return valueDate;
     }
 
     @Override
-    public void setValueDate(Date valueDate) {
+    public void setValueDate(LocalDate valueDate) {
         this.valueDate = valueDate;
     }
 

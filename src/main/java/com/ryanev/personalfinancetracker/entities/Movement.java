@@ -1,10 +1,13 @@
 package com.ryanev.personalfinancetracker.entities;
 
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
-import java.util.Date;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "movements")
@@ -18,8 +21,10 @@ public class Movement {
     private Double amount;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date valueDate;
+    @NotNull
+    private LocalDate valueDate;
 
+    @NotEmpty
     private String name;
 
     @ManyToOne(targetEntity = MovementCategory.class,
@@ -53,11 +58,11 @@ public class Movement {
         this.amount = amount;
     }
 
-    public Date getValueDate() {
+    public LocalDate getValueDate() {
         return valueDate;
     }
 
-    public void setValueDate(Date valueDate) {
+    public void setValueDate(LocalDate valueDate) {
         this.valueDate = valueDate;
     }
 

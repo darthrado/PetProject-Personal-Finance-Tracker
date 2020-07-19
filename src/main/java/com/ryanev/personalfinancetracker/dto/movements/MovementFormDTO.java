@@ -1,6 +1,8 @@
-package com.ryanev.personalfinancetracker.dto;
+package com.ryanev.personalfinancetracker.dto.movements;
 
-import java.util.Date;
+import com.ryanev.personalfinancetracker.entities.Movement;
+
+import java.time.LocalDate;
 
 public interface MovementFormDTO {
 
@@ -14,8 +16,8 @@ public interface MovementFormDTO {
     Double getUnsignedAmount();
     void setUnsignedAmount(Double amount);
 
-    Date getValueDate();
-    void setValueDate(Date valueDate);
+    LocalDate getValueDate();
+    void setValueDate(LocalDate valueDate);
 
     String getName();
     void setName(String name);
@@ -25,4 +27,6 @@ public interface MovementFormDTO {
 
     String getDescription();
     void setDescription(String description);
+
+    //Movement build();
 }

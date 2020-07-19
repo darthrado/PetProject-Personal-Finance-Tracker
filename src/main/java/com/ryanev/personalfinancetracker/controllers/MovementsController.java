@@ -1,11 +1,16 @@
 package com.ryanev.personalfinancetracker.controllers;
 
-import com.ryanev.personalfinancetracker.dto.MovementFormDTO;
-import com.ryanev.personalfinancetracker.dto.MovementViewDTO;
-import com.ryanev.personalfinancetracker.dto.implementations.DefaultMovementFormDTO;
-import com.ryanev.personalfinancetracker.dto.implementations.MovementViewDtoAdapter;
+import com.ryanev.personalfinancetracker.dto.movements.MovementFormDTO;
+import com.ryanev.personalfinancetracker.dto.movements.MovementViewDTO;
+import com.ryanev.personalfinancetracker.dto.movements.implementations.DefaultMovementFormDTO;
+import com.ryanev.personalfinancetracker.dto.movements.implementations.MovementViewDtoAdapter;
 import com.ryanev.personalfinancetracker.entities.Movement;
 import com.ryanev.personalfinancetracker.entities.MovementCategory;
+import com.ryanev.personalfinancetracker.entities.User;
+import com.ryanev.personalfinancetracker.exceptions.IncorrectCategoryIdException;
+import com.ryanev.personalfinancetracker.exceptions.IncorrectMovementIdException;
+import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
+import com.ryanev.personalfinancetracker.exceptions.InvalidMovementException;
 import com.ryanev.personalfinancetracker.services.CategoriesService;
 import com.ryanev.personalfinancetracker.services.MovementsService;
 import com.ryanev.personalfinancetracker.services.UserService;
@@ -17,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.text.ParseException;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Controller
@@ -38,15 +44,29 @@ public class MovementsController {
         return new StringBuilder(slash).append(userId).append(slash).append(controllerPath).toString();
     }
 
+    private boolean checkIfUserExists(Long userId){
+        try {
+            User user = userService.getUserById(userId);
+            return true;
+        }
+        catch (NoSuchElementException e){
+            return false;
+        }
+    }
+
     @GetMapping
     public String movementsLandingPage(Model model,
-                                       @PathVariable("userId") Long userId){
+                                       @PathVariable("userId") Long userId) throws IncorrectUserIdException{
+
+        if(!checkIfUserExists(userId)){
+            throw new IncorrectUserIdException();
+        }
 
         //ToDO build optional search params and pass to service
         //Todo understand Spring data specification interface https://spring.io/blog/2011/04/26/advanced-spring-data-jpa-specifications-and-querydsl/
         List<MovementViewDTO> movementsList = movementsService.getMovementsForUser(userId)
                 .stream()
-                .map(movement -> new MovementViewDtoAdapter(movement))
+                .map(MovementViewDtoAdapter::new)
                 .collect(Collectors.toList());
 
         model.addAttribute("baseUrl", buildControllerBaseURL(userId));
@@ -58,7 +78,11 @@ public class MovementsController {
 
     @GetMapping("/new")
     public String newMovementPage(Model model,
-                                  @PathVariable("userId") long userId) {
+                                  @PathVariable("userId") long userId) throws IncorrectUserIdException {
+
+        if(!checkIfUserExists(userId)){
+            throw new IncorrectUserIdException();
+        }
 
         List<MovementCategory> categories = categoriesService.getCategoriesForUser(userId);
 
@@ -71,10 +95,21 @@ public class MovementsController {
     @GetMapping("/update")
     public String editMovementPage(Model model,
                                    @PathVariable("userId") Long userId,
-                                   @RequestParam("id") Long movementId ){
+                                   @RequestParam("id") Long movementId ) throws IncorrectUserIdException, IncorrectMovementIdException {
+
+        if(!checkIfUserExists(userId)){
+            throw new IncorrectUserIdException();
+        }
+
+        Movement movementForEdit;
+        try {
+            movementForEdit = movementsService.getMovementById(movementId);
+        }
+        catch (NoSuchElementException e){
+            throw new IncorrectMovementIdException();
+        }
 
         List<MovementCategory> categories = categoriesService.getCategoriesForUser(userId);
-        Movement movementForEdit = movementsService.getMovementById(movementId);
 
         model = loadMovementFormModel(model,userId,"Update",movementForEdit,categories);
 
@@ -84,10 +119,21 @@ public class MovementsController {
     @GetMapping("/delete")
     public String deleteMovementPage(Model model,
                                      @PathVariable("userId") Long userId,
-                                     @RequestParam("id") Long movementId ){
+                                     @RequestParam("id") Long movementId ) throws IncorrectUserIdException, IncorrectMovementIdException {
+
+        if(!checkIfUserExists(userId)){
+            throw new IncorrectUserIdException();
+        }
+
+        Movement movementForDelete;
+        try {
+            movementForDelete = movementsService.getMovementById(movementId);
+        }
+        catch (NoSuchElementException e){
+            throw new IncorrectMovementIdException();
+        }
 
         List<MovementCategory> categories = categoriesService.getCategoriesForUser(userId);
-        Movement movementForDelete = movementsService.getMovementById(movementId);
 
         model = loadMovementFormModel(model,userId,"Delete",movementForDelete,categories);
 
@@ -106,7 +152,6 @@ public class MovementsController {
             okButtonUrl = new StringBuilder(baseUrl).append(slash).append("delete").append(slash).append("confirm").toString();
             formMethod = RequestMethod.DELETE.name();
             disableFormFields = true;
-            //todo add variable to make all form fields uneditable here attribute here
         }
         else {
             okButtonUrl = new StringBuilder(baseUrl).append(slash).append("save").toString();
@@ -133,8 +178,12 @@ public class MovementsController {
     @PostMapping("/save")
     public  String saveMovement(Model model,
                                 @Valid
-                                MovementFormDTO newMovementDTO,
-                                @PathVariable("userId") Long userId) throws ParseException {
+                                @ModelAttribute("movement")    MovementFormDTO newMovementDTO,
+                                @PathVariable("userId") Long userId) throws IncorrectUserIdException, InvalidMovementException, IncorrectCategoryIdException {
+
+        if(!checkIfUserExists(userId)){
+            throw new IncorrectUserIdException();
+        }
 
         //TODO this probably belongs to a builder, or some mapper class
         Movement newMovement = new Movement();
@@ -143,10 +192,21 @@ public class MovementsController {
         newMovement.setDescription(newMovementDTO.getDescription());
         newMovement.setValueDate(newMovementDTO.getValueDate());
         newMovement.setUser(userService.getUserById(userId));
-        newMovement.setCategory(categoriesService.getCategoryById(newMovementDTO.getCategoryId()));
+
+        try {
+            newMovement.setCategory(categoriesService.getCategoryById(newMovementDTO.getCategoryId()));
+        }catch (NoSuchElementException e){
+            throw new IncorrectCategoryIdException();
+        }
+
+
+        //TODO: I don't like this band aid fix. Add a validator for the DTO
+        if (newMovementDTO.getUnsignedAmount() == null || newMovementDTO.getFlagAmountPositive() == null)
+            throw new InvalidMovementException("Amount is null or Flag Amount is null");
+        if(newMovementDTO.getUnsignedAmount() < 0)
+            throw new InvalidMovementException("Amount can't be negative");
         newMovement.setAmount( newMovementDTO.getUnsignedAmount() * (newMovementDTO.getFlagAmountPositive()?1:-1) );
 
-        newMovement.setUser(userService.getUserById(userId)); //ToDo is this a good approach or just go with ids and rely on repo?
         movementsService.saveMovement(newMovement);
 
         return "redirect:"+buildControllerBaseURL(userId);
@@ -154,7 +214,11 @@ public class MovementsController {
     @PostMapping("/delete/confirm")
     public String deleteMovement(Model model,
                                  MovementFormDTO movementToDelete,
-                                 @PathVariable("userId") Long userId){
+                                 @PathVariable("userId") Long userId) throws IncorrectUserIdException {
+
+        if(!checkIfUserExists(userId)){
+            throw new IncorrectUserIdException();
+        }
 
         movementsService.deleteMovementById(movementToDelete.getId());
 
