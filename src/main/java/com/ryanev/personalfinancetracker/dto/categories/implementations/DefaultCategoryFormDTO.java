@@ -49,4 +49,14 @@ public class DefaultCategoryFormDTO implements CategoryFormDTO {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    @Override
+    public Boolean getFlagActive() {
+        return null;
+    }
+
+    @Override
+    public void setFlagActive(Boolean flagActive) {
+
+    }
 }

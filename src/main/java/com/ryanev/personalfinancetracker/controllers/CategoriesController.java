@@ -134,15 +134,25 @@ public class CategoriesController {
         CategoryFormDTO categoryFormEntry = new DefaultCategoryFormDTO(movementCategory);
 
         boolean disableFormFields;
+        boolean flagInactiveCategory = false;
         if (action.equals("Delete")){
             okButtonUrl = new StringBuilder(baseUrl).append(slash).append("delete").append(slash).append("confirm").toString();
             disableFormFields = true;
         }
         else {
             okButtonUrl = new StringBuilder(baseUrl).append(slash).append("save").toString();
-            disableFormFields = false;
+
+            if(movementCategory.getFlagActive() != null && !movementCategory.getFlagActive()){
+                disableFormFields = true;
+                flagInactiveCategory = true;
+            }else {
+                disableFormFields = false;
+            }
+
         }
 
+
+        model.addAttribute("flagInactiveCategory",flagInactiveCategory);
         model.addAttribute("okButtonText",action);
         model.addAttribute("okButtonUrl",okButtonUrl);
         model.addAttribute("disableFormFields",disableFormFields);
@@ -173,6 +183,17 @@ public class CategoriesController {
         movementCategory.setDescription(categoryFormDTO.getDescription());
         movementCategory.setUser(userService.getUserById(userId));
         movementCategory = categoriesService.saveCategory(movementCategory);
+
+        return "redirect:"+buildControllerBaseURL(userId);
+    }
+
+    @GetMapping("change_status")
+    public String updateCategoryStatus(Model model,
+                                       @PathVariable("userId") Long userId,
+                                       @RequestParam("id") Long categoryId,
+                                       @RequestParam("enable") Boolean flagValue) throws IncorrectCategoryIdException {
+
+        categoriesService.changeCategoryFlagActive(categoryId,flagValue);
 
         return "redirect:"+buildControllerBaseURL(userId);
     }

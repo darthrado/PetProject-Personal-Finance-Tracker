@@ -3,6 +3,7 @@ package com.ryanev.personalfinancetracker.entities;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 @Entity
@@ -13,7 +14,14 @@ public class MovementCategory {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_mvt_categories")
     @SequenceGenerator(name = "seq_mvt_categories",sequenceName = "seq_mvt_categories", allocationSize = 1)
     private Long id;
+
+    @NotEmpty
     private String name;
+
+    private Boolean flagActive;
+
+    @Nullable
+    private String description;
 
     @ManyToOne(targetEntity = User.class,
             cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH},
@@ -26,11 +34,13 @@ public class MovementCategory {
             fetch = FetchType.LAZY)
     List<Movement> movementsForCategory;
 
+    public Boolean getFlagActive() {
+        return flagActive;
+    }
 
-
-
-    @Nullable
-    private String description;
+    public void setFlagActive(Boolean flagActive) {
+        this.flagActive = flagActive;
+    }
 
     public Long getId() {
         return id;

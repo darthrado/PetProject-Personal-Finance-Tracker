@@ -5,7 +5,7 @@ import com.ryanev.personalfinancetracker.entities.MovementCategory;
 
 public class CategoryVeiwDtoAdapter implements CategoryViewDTO {
 
-    MovementCategory movementCategory;
+    private MovementCategory movementCategory;
 
     public CategoryVeiwDtoAdapter(MovementCategory movementCategory) {
         this.movementCategory = movementCategory;
@@ -19,5 +19,10 @@ public class CategoryVeiwDtoAdapter implements CategoryViewDTO {
     @Override
     public String getName() {
         return movementCategory.getName();
+    }
+
+    @Override
+    public Boolean getFlagActive() {
+        return movementCategory.getFlagActive();
     }
 }

@@ -16,6 +16,7 @@ public class TestCategoryBuilder {
         MovementCategory newCategory = new MovementCategory();
         newCategory.setId(-999L);
         newCategory.setName("TestCateg123");
+        newCategory.setFlagActive(true);
         newCategory.setUser(TestUserBuilder.createValidUser().build());
 
         return new TestCategoryBuilder(newCategory);
@@ -40,6 +41,21 @@ public class TestCategoryBuilder {
 
     public TestCategoryBuilder withDescription(String description){
         categoryToBuild.setDescription(description);
+
+        return this;
+    }
+
+    public TestCategoryBuilder withFlagActive(Boolean flagActive){
+        categoryToBuild.setFlagActive(flagActive);
+
+        return this;
+    }
+    public TestCategoryBuilder withStatus(String status){
+        switch (status){
+            case "Active": categoryToBuild.setFlagActive(true); break;
+            case "Disabled": categoryToBuild.setFlagActive(false); break;
+            default: throw new RuntimeException("invalid value");
+        }
 
         return this;
     }

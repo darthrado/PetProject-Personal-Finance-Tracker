@@ -20,7 +20,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.text.ParseException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -84,7 +83,7 @@ public class MovementsController {
             throw new IncorrectUserIdException();
         }
 
-        List<MovementCategory> categories = categoriesService.getCategoriesForUser(userId);
+        List<MovementCategory> categories = categoriesService.getActiveCategoriesForUser(userId);
 
         model = loadMovementFormModel(model,userId,"New",new Movement(),categories);
 
@@ -109,7 +108,7 @@ public class MovementsController {
             throw new IncorrectMovementIdException();
         }
 
-        List<MovementCategory> categories = categoriesService.getCategoriesForUser(userId);
+        List<MovementCategory> categories = categoriesService.getActiveCategoriesForUser(userId);
 
         model = loadMovementFormModel(model,userId,"Update",movementForEdit,categories);
 
@@ -133,7 +132,7 @@ public class MovementsController {
             throw new IncorrectMovementIdException();
         }
 
-        List<MovementCategory> categories = categoriesService.getCategoriesForUser(userId);
+        List<MovementCategory> categories = categoriesService.getActiveCategoriesForUser(userId);
 
         model = loadMovementFormModel(model,userId,"Delete",movementForDelete,categories);
 

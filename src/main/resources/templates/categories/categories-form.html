@@ -7,7 +7,7 @@
 <body>
 
 <h2 th:text="${action}+' Category'"></h2>
-
+<div th:if="${flagInactiveCategory}">Category disabled - edit not permitted</div>
 <div>
     <form  th:action="${okButtonUrl}" th:object="${category}" method="POST">
         <input type="hidden" th:field="${category.id}" />

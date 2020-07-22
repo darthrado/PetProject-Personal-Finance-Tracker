@@ -4,6 +4,7 @@ package com.ryanev.personalfinancetracker.unit.controller;
 import com.ryanev.personalfinancetracker.controllers.MovementsController;
 import com.ryanev.personalfinancetracker.entities.Movement;
 import com.ryanev.personalfinancetracker.entities.MovementCategory;
+import com.ryanev.personalfinancetracker.entities.User;
 import com.ryanev.personalfinancetracker.exceptions.InvalidMovementException;
 import com.ryanev.personalfinancetracker.services.CategoriesService;
 import com.ryanev.personalfinancetracker.services.MovementsService;
@@ -30,6 +31,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -219,7 +221,7 @@ public class MovementsControllerUnitTest {
                 .build();
 
         Mockito.when(movementsService.getMovementById(movementId)).thenReturn(movementToEdit);
-        Mockito.when(categoriesService.getCategoriesForUser(userId)).thenReturn(List.of(movementCategory));
+        Mockito.when(categoriesService.getActiveCategoriesForUser(userId)).thenReturn(List.of(movementCategory));
 
 
         mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId).concat("/update").concat("?id=").concat(movementId.toString())))
@@ -250,7 +252,7 @@ public class MovementsControllerUnitTest {
                 .build();
 
         Mockito.when(movementsService.getMovementById(movementId)).thenReturn(movementToEdit);
-        Mockito.when(categoriesService.getCategoriesForUser(userId)).thenReturn(List.of(movementCategory));
+        Mockito.when(categoriesService.getActiveCategoriesForUser(userId)).thenReturn(List.of(movementCategory));
 
         mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId).concat("/update").concat("?id=").concat(movementId.toString())))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -316,7 +318,7 @@ public class MovementsControllerUnitTest {
                 .build();
 
         Mockito.when(movementsService.getMovementById(movementId)).thenReturn(movementToEdit);
-        Mockito.when(categoriesService.getCategoriesForUser(userId)).thenReturn(List.of(movementCategory));
+        Mockito.when(categoriesService.getActiveCategoriesForUser(userId)).thenReturn(List.of(movementCategory));
         mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId).concat("/delete").concat("?id=").concat(movementId.toString())))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers
@@ -345,7 +347,7 @@ public class MovementsControllerUnitTest {
                 .build();
 
         Mockito.when(movementsService.getMovementById(movementId)).thenReturn(movementToEdit);
-        Mockito.when(categoriesService.getCategoriesForUser(userId)).thenReturn(List.of(movementCategory));
+        Mockito.when(categoriesService.getActiveCategoriesForUser(userId)).thenReturn(List.of(movementCategory));
 
         mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId).concat("/delete").concat("?id=").concat(movementId.toString())))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -367,7 +369,7 @@ public class MovementsControllerUnitTest {
                 .build();
 
         Mockito.when(movementsService.getMovementById(movementId)).thenReturn(movementToEdit);
-        Mockito.when(categoriesService.getCategoriesForUser(userId)).thenReturn(List.of(movementCategory));
+        Mockito.when(categoriesService.getActiveCategoriesForUser(userId)).thenReturn(List.of(movementCategory));
 
         mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId).concat("/delete").concat("?id=").concat(movementId.toString())))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -842,4 +844,92 @@ public class MovementsControllerUnitTest {
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().is4xxClientError());
     }
+
+    @Test
+    public void movementFormNew_correctGetRequest_onlyActiveCategoriesAreLoadedInFormDropdown() throws Exception {
+
+        Long userId = someUserId();
+        List<MovementCategory> listOfCategories = new ArrayList<>();
+
+        listOfCategories.add(TestCategoryBuilder.createValidCategory().withName("Salary").build());
+        listOfCategories.add(TestCategoryBuilder.createValidCategory().withName("Shopping").build());
+        listOfCategories.add(TestCategoryBuilder.createValidCategory().withName("Games").build());
+
+
+        Mockito.when(categoriesService.getActiveCategoriesForUser(userId)).thenReturn(listOfCategories);
+
+
+        mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId).concat("/new")))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers
+                        .model()
+                        .attribute("categories", Matchers.hasItem(Matchers.hasProperty("name",Matchers.is("Salary")))))
+                .andExpect(MockMvcResultMatchers
+                        .model()
+                        .attribute("categories", Matchers.hasItem(Matchers.hasProperty("name",Matchers.is("Shopping")))))
+                .andExpect(MockMvcResultMatchers
+                        .model()
+                        .attribute("categories", Matchers.hasItem(Matchers.hasProperty("name",Matchers.is("Games")))));
+    }
+
+    @Test
+    public void movementFormEdit_correctGetRequest_onlyActiveCategoriesAreLoadedInFormDropdown() throws Exception {
+
+        Long userId = someUserId();
+        Long movementId = 444L;
+        List<MovementCategory> listOfCategories = new ArrayList<>();
+
+        listOfCategories.add(TestCategoryBuilder.createValidCategory().withName("Salary").build());
+        listOfCategories.add(TestCategoryBuilder.createValidCategory().withName("Shopping").build());
+        listOfCategories.add(TestCategoryBuilder.createValidCategory().withName("Games").build());
+
+
+        Mockito.when(categoriesService.getActiveCategoriesForUser(userId)).thenReturn(listOfCategories);
+        Mockito.when(movementsService.getMovementById(movementId))
+                .thenReturn(TestMovementBuilder.createValidMovement().withId(movementId).withCategory(listOfCategories.get(0)).build());
+
+
+        mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId).concat("/update")).param("id",movementId.toString()))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers
+                        .model()
+                        .attribute("categories", Matchers.hasItem(Matchers.hasProperty("name",Matchers.is("Salary")))))
+                .andExpect(MockMvcResultMatchers
+                        .model()
+                        .attribute("categories", Matchers.hasItem(Matchers.hasProperty("name",Matchers.is("Shopping")))))
+                .andExpect(MockMvcResultMatchers
+                        .model()
+                        .attribute("categories", Matchers.hasItem(Matchers.hasProperty("name",Matchers.is("Games")))));
+    }
+
+    @Test
+    public void movementFormDelete_correctGetRequest_onlyActiveCategoriesAreLoadedInFormDropdown() throws Exception {
+
+        Long userId = someUserId();
+        Long movementId = 444L;
+        List<MovementCategory> listOfCategories = new ArrayList<>();
+
+        listOfCategories.add(TestCategoryBuilder.createValidCategory().withName("Salary").build());
+        listOfCategories.add(TestCategoryBuilder.createValidCategory().withName("Shopping").build());
+        listOfCategories.add(TestCategoryBuilder.createValidCategory().withName("Games").build());
+
+
+        Mockito.when(categoriesService.getActiveCategoriesForUser(userId)).thenReturn(listOfCategories);
+        Mockito.when(movementsService.getMovementById(movementId))
+                .thenReturn(TestMovementBuilder.createValidMovement().withId(movementId).withCategory(listOfCategories.get(0)).build());
+
+
+        mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId).concat("/delete")).param("id",movementId.toString()))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers
+                        .model()
+                        .attribute("categories", Matchers.hasItem(Matchers.hasProperty("name",Matchers.is("Salary")))))
+                .andExpect(MockMvcResultMatchers
+                        .model()
+                        .attribute("categories", Matchers.hasItem(Matchers.hasProperty("name",Matchers.is("Shopping")))))
+                .andExpect(MockMvcResultMatchers
+                        .model()
+                        .attribute("categories", Matchers.hasItem(Matchers.hasProperty("name",Matchers.is("Games")))));
+    }
+
 }

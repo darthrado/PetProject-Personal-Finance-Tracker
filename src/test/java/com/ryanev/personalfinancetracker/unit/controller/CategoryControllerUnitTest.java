@@ -2,6 +2,7 @@ package com.ryanev.personalfinancetracker.unit.controller;
 
 import com.ryanev.personalfinancetracker.controllers.CategoriesController;
 import com.ryanev.personalfinancetracker.entities.MovementCategory;
+import com.ryanev.personalfinancetracker.exceptions.IncorrectCategoryIdException;
 import com.ryanev.personalfinancetracker.exceptions.InvalidCategoryException;
 import com.ryanev.personalfinancetracker.services.CategoriesService;
 import com.ryanev.personalfinancetracker.services.UserService;
@@ -24,6 +25,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.web.util.*;
 
 import java.util.Collections;
 import java.util.List;
@@ -64,11 +66,16 @@ public class CategoryControllerUnitTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"234,SALARY", "666,OTHER", "543,Games"})
+    @CsvSource({"234,SALARY,Active", "666,OTHER,Disabled", "543,Games,Active"})
     public void categoriesPage_correctGetRequest_dataOnASingleCategoryIsCorrect(Long userId,
-                                                                               String movementCategoryName) throws Exception{
+                                                                                String movementCategoryName,
+                                                                                String categoryStatus) throws Exception{
 
-        MovementCategory movementCategory = TestCategoryBuilder.createValidCategory().withName(movementCategoryName).build();
+        MovementCategory movementCategory = TestCategoryBuilder
+                .createValidCategory()
+                .withName(movementCategoryName)
+                .withStatus(categoryStatus)
+                .build();
         Mockito.when(categoriesService.getCategoriesForUser(userId)).thenReturn(List.of(movementCategory));
 
         mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId)))
@@ -76,7 +83,8 @@ public class CategoryControllerUnitTest {
                 .andExpect(MockMvcResultMatchers.model()
                         .attribute("categoriesList",Matchers
                                 .hasItem(Matchers.allOf(
-                                        Matchers.hasProperty("name",Matchers.is(movementCategoryName))
+                                        Matchers.hasProperty("name",Matchers.is(movementCategoryName)),
+                                        Matchers.hasProperty("flagActive",Matchers.is(movementCategory.getFlagActive()))
                                 ))
                         ));
     }
@@ -286,5 +294,174 @@ public class CategoryControllerUnitTest {
 
     }
 
+    @Test
+    public void categoriesPage_correctGetRequest_enableLinkOnlyPresentForInactiveCategories()throws Exception{
 
+        Long userId = someUserId();
+        Long categoryId = 234L;
+        String enableLink = HtmlUtils.htmlEscape(UriComponentsBuilder
+                .fromUriString(getControllerBaseURL(userId).concat("/change_status"))
+                .queryParam("id",categoryId)
+                .queryParam("enable",true)
+                .build()
+                .toUriString());
+
+        MovementCategory returnedCategory = TestCategoryBuilder.createValidCategory().withId(categoryId).withFlagActive(false).build();
+
+        Mockito.when(categoriesService.getCategoriesForUser(userId)).thenReturn(List.of(returnedCategory));
+
+        mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string(Matchers.containsString(enableLink)))
+                .andExpect(MockMvcResultMatchers.content().string(Matchers.containsString(">Enable<")))
+                .andExpect(MockMvcResultMatchers.content().string(Matchers.not(Matchers.containsString(">Disable<"))));
+    }
+
+    @Test
+    public void categoriesPage_correctGetRequest_disableLinkOnlyPresentForActiveCategories()throws Exception{
+
+        Long userId = someUserId();
+        Long categoryId = 234L;
+        String disableLink = HtmlUtils.htmlEscape(UriComponentsBuilder
+                .fromUriString(getControllerBaseURL(userId).concat("/change_status"))
+                .queryParam("id",categoryId)
+                .queryParam("enable",false)
+                .build()
+                .toUriString());
+
+        MovementCategory returnedCategory = TestCategoryBuilder.createValidCategory().withId(categoryId).withFlagActive(true).build();
+
+        Mockito.when(categoriesService.getCategoriesForUser(userId)).thenReturn(List.of(returnedCategory));
+
+        mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string(Matchers.containsString(disableLink)))
+                .andExpect(MockMvcResultMatchers.content().string(Matchers.containsString(">Disable<")))
+                .andExpect(MockMvcResultMatchers.content().string(Matchers.not(Matchers.containsString(">Enable<"))));
+    }
+
+    @Test
+    public void categoriesChangeStatusLink_correctGetRequest_successfullyChangesStatusToEnabled() throws Exception{
+        Long userId = someUserId();
+        Long categoryId = 234L;
+
+        String enableLink = UriComponentsBuilder
+                .fromUriString(getControllerBaseURL(userId).concat("/change_status"))
+                .queryParam("id",categoryId)
+                .queryParam("enable",true)
+                .build()
+                .toUriString();
+
+        mockMvc.perform(MockMvcRequestBuilders.get(enableLink))
+                .andExpect(MockMvcResultMatchers.status().is3xxRedirection());
+
+
+        Mockito.verify(categoriesService).changeCategoryFlagActive(categoryId,true);
+    }
+
+    @Test
+    public void categoriesChangeStatusLink_correctGetRequest_successfullyChangesStatusToDisabled() throws Exception{
+        Long userId = someUserId();
+        Long categoryId = 234L;
+
+        String enableLink = UriComponentsBuilder
+                .fromUriString(getControllerBaseURL(userId).concat("/change_status"))
+                .queryParam("id",categoryId)
+                .queryParam("enable",false)
+                .build()
+                .toUriString();
+
+        mockMvc.perform(MockMvcRequestBuilders.get(enableLink))
+                .andExpect(MockMvcResultMatchers.status().is3xxRedirection());
+
+
+        Mockito.verify(categoriesService).changeCategoryFlagActive(categoryId,false);
+    }
+
+    @Test
+    public void categoriesChangeStatusLink_correctGetRequest_successfullyRedirectsToCategoriesPage() throws Exception{
+        Long userId = someUserId();
+        Long categoryId = 234L;
+
+        String enableLink = UriComponentsBuilder
+                .fromUriString(getControllerBaseURL(userId).concat("/change_status"))
+                .queryParam("id",categoryId)
+                .queryParam("enable",true)
+                .build()
+                .toUriString();
+
+        mockMvc.perform(MockMvcRequestBuilders.get(enableLink))
+                .andExpect(MockMvcResultMatchers.status().is3xxRedirection())
+                .andExpect(MockMvcResultMatchers.redirectedUrl(getControllerBaseURL(userId)));
+
+    }
+    @Test
+    public void categoriesChangeStatusLink_incorrectGetRequest_categoryIdMissing_throwsClientError() throws Exception{
+        Long userId = someUserId();
+        Long categoryId = 234L;
+
+        String enableLink = UriComponentsBuilder
+                .fromUriString(getControllerBaseURL(userId).concat("/change_status"))
+                .queryParam("enable",true)
+                .build()
+                .toUriString();
+
+        mockMvc.perform(MockMvcRequestBuilders.get(enableLink))
+                .andExpect(MockMvcResultMatchers.status().is4xxClientError());
+    }
+    @ParameterizedTest
+    @ValueSource(booleans = {true,false})
+    public void categoriesChangeStatusLink_incorrectGetRequest_categoryIdIncorrect_throwsClientError(Boolean enableQueryParam) throws Exception{
+        Long userId = someUserId();
+        Long categoryId = 234L;
+
+        Mockito.doThrow(IncorrectCategoryIdException.class).when(categoriesService).changeCategoryFlagActive(categoryId,enableQueryParam);
+
+        String enableLink = UriComponentsBuilder
+                .fromUriString(getControllerBaseURL(userId).concat("/change_status"))
+                .queryParam("id",categoryId)
+                .queryParam("enable",enableQueryParam)
+                .build()
+                .toUriString();
+
+        mockMvc.perform(MockMvcRequestBuilders.get(enableLink))
+                .andExpect(MockMvcResultMatchers.status().is4xxClientError());
+    }
+    @Test
+    public void categoriesChangeStatusLink_incorrectGetRequest_enableFlagMissing_throwsClientError() throws Exception{
+        Long userId = someUserId();
+        Long categoryId = 234L;
+
+        String enableLink = UriComponentsBuilder
+                .fromUriString(getControllerBaseURL(userId).concat("/change_status"))
+                .queryParam("id",categoryId)
+                .build()
+                .toUriString();
+
+        mockMvc.perform(MockMvcRequestBuilders.get(enableLink))
+                .andExpect(MockMvcResultMatchers.status().is4xxClientError());
+    }
+
+
+    @ParameterizedTest
+    @CsvSource({"-333,1,SALARY"})
+    public void categoryFormEdit_correctGetRequest_inactiveCategory_formFieldsAreCorrectlyDisabled(Long userId,
+                                                                             Long categoryId,
+                                                                             String categoryName) throws Exception {
+
+        MovementCategory categoryToEdit = TestCategoryBuilder.createValidCategory()
+                .withId(categoryId)
+                .withName(categoryName)
+                .withFlagActive(false)
+                .build();
+
+        Mockito.when(categoriesService.getCategoryById(categoryId)).thenReturn(categoryToEdit);
+
+
+        mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId).concat("/update").concat("?id=").concat(categoryId.toString())))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().attribute("disableFormFields",Matchers.is(true)))
+                .andExpect(MockMvcResultMatchers.model().attribute("flagInactiveCategory",Matchers.is(true)))
+                .andExpect(MockMvcResultMatchers.content().string(Matchers.containsString("Category disabled - edit not permitted")));
+    }
 }

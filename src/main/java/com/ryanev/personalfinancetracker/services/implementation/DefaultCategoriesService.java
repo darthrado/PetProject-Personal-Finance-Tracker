@@ -3,6 +3,7 @@ package com.ryanev.personalfinancetracker.services.implementation;
 import com.ryanev.personalfinancetracker.dao.CategoriesRepository;
 import com.ryanev.personalfinancetracker.dao.UserRepository;
 import com.ryanev.personalfinancetracker.entities.MovementCategory;
+import com.ryanev.personalfinancetracker.exceptions.IncorrectCategoryIdException;
 import com.ryanev.personalfinancetracker.exceptions.InvalidCategoryException;
 import com.ryanev.personalfinancetracker.exceptions.InvalidMovementException;
 import com.ryanev.personalfinancetracker.services.CategoriesService;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 public class DefaultCategoriesService implements CategoriesService {
@@ -69,5 +71,25 @@ public class DefaultCategoriesService implements CategoriesService {
     @Override
     public List<MovementCategory> getAll() {
         return categoriesRepository.findAll();
+    }
+
+    @Override
+    public void changeCategoryFlagActive(Long categoryId,Boolean flagActive) throws IncorrectCategoryIdException {
+
+        MovementCategory categoryToModify;
+
+        try {
+            categoryToModify = getCategoryById(categoryId);
+        }catch (NoSuchElementException e){
+            throw new IncorrectCategoryIdException();
+        }
+
+        categoryToModify.setFlagActive(flagActive);
+        categoriesRepository.save(categoryToModify);
+    }
+
+    @Override
+    public List<MovementCategory> getActiveCategoriesForUser(Long userId) {
+        return categoriesRepository.findAllByUserId(userId).stream().filter(MovementCategory::getFlagActive).collect(Collectors.toList());
     }
 }
