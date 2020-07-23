@@ -1,7 +1,11 @@
 package com.ryanev.personalfinancetracker.dto.categories;
 
 public interface CategoryViewDTO {
-    Long getId();
     String getName();
-    Boolean getFlagActive();
+    String getActive();
+    String getEnableDisableText();
+    String getEnableDisableLink();
+    String getUpdateLink();
+    String getDeleteLink();
+    Boolean getFlagDefault();
 }

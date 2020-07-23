@@ -84,7 +84,7 @@ public class CategoryControllerUnitTest {
                         .attribute("categoriesList",Matchers
                                 .hasItem(Matchers.allOf(
                                         Matchers.hasProperty("name",Matchers.is(movementCategoryName)),
-                                        Matchers.hasProperty("flagActive",Matchers.is(movementCategory.getFlagActive()))
+                                        Matchers.hasProperty("active",Matchers.is(categoryStatus))
                                 ))
                         ));
     }
@@ -464,4 +464,99 @@ public class CategoryControllerUnitTest {
                 .andExpect(MockMvcResultMatchers.model().attribute("flagInactiveCategory",Matchers.is(true)))
                 .andExpect(MockMvcResultMatchers.content().string(Matchers.containsString("Category disabled - edit not permitted")));
     }
+
+    @ParameterizedTest
+    @CsvSource({"777,4567,SALARY"})
+    public void categoryFormSave_CorrectPostRequest_alreadyExistingCategory_originalEntityIsUsed(Long userId,
+                                                                            Long categoryId,
+                                                                            String name) throws Exception {
+
+        MovementCategory originalMovement = TestCategoryBuilder.createValidCategory().withId(categoryId).build();
+        Mockito.when(categoriesService.getCategoryById(categoryId))
+                .thenReturn(originalMovement);
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post(getControllerBaseURL(userId).concat("/save"))
+                .with(csrf())
+                .accept(MediaType.TEXT_HTML,MediaType.APPLICATION_XHTML_XML)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .param("id",categoryId.toString())
+                .param("name",name);
+
+        mockMvc.perform(request)
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().is3xxRedirection());
+
+        ArgumentCaptor<MovementCategory> categoryArgumentCaptorArgumentCaptor = ArgumentCaptor.forClass(MovementCategory.class);
+        Mockito.verify(categoriesService).saveCategory(categoryArgumentCaptorArgumentCaptor.capture());
+        assertThat(categoryArgumentCaptorArgumentCaptor.getValue()).isSameAs(originalMovement);
+        assertThat(categoryArgumentCaptorArgumentCaptor.getValue().getId()).isEqualTo(categoryId);
+        assertThat(categoryArgumentCaptorArgumentCaptor.getValue().getName()).isEqualTo(name);
+    }
+
+    @Test
+    public void categoriesPage_correctGetRequest_defaultCategory_editDisableDeleteButtonsAreNOTPresent() throws Exception{
+
+        Long userId = someUserId();
+        Integer expectedRecords = 8;
+
+        String defaultCategoryName = "This is a default category";
+
+        Mockito.when(categoriesService.getCategoriesForUser(userId))
+                .thenReturn(Collections.nCopies(expectedRecords, TestCategoryBuilder.createValidCategory().withName(defaultCategoryName).build()));
+        Mockito.when(categoriesService.isCategoryDefault(defaultCategoryName)).thenReturn(true);
+
+        mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId)))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string(Matchers.containsString(defaultCategoryName)))
+                .andExpect(MockMvcResultMatchers.content().string(Matchers.not(Matchers.containsString(getControllerBaseURL(userId)+"/update"))))
+                .andExpect(MockMvcResultMatchers.content().string(Matchers.not(Matchers.containsString(getControllerBaseURL(userId)+"/change_status"))))
+                .andExpect(MockMvcResultMatchers.content().string(Matchers.not(Matchers.containsString(getControllerBaseURL(userId)+"/delete"))));
+    }
+
+
+    @Test
+    public void categoriesDeleteConfirm_correctGetRequest_deleteServiceSuccessfullyCalled() throws Exception{
+
+        Long userId = someUserId();
+        Long categoryId = 1234L;
+        Long categoryFallbackId = 5678L;
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post(getControllerBaseURL(userId).concat("/delete/confirm"))
+                .with(csrf())
+                .accept(MediaType.TEXT_HTML,MediaType.APPLICATION_XHTML_XML)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .param("id",categoryId.toString())
+                .param("name","ToDelete")
+                .param("fallbackCategoryId",categoryFallbackId.toString());
+
+        mockMvc.perform(request)
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().is3xxRedirection());
+
+        Mockito.verify(categoriesService).deleteCategoryById(categoryId);
+    }
+
+    @Test
+    public void categoriesDeleteConfirm_incorrectGetRequest_incorrectCategoryId_throwsClientError() throws Exception{
+
+        Long userId = someUserId();
+        Long categoryId = 1234L;
+        Long categoryFallbackId = 5678L;
+
+
+        Mockito.doThrow(IncorrectCategoryIdException.class).when(categoriesService).deleteCategoryById(categoryId);
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post(getControllerBaseURL(userId).concat("/delete/confirm"))
+                .with(csrf())
+                .accept(MediaType.TEXT_HTML,MediaType.APPLICATION_XHTML_XML)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .param("id",categoryId.toString())
+                .param("name","ToDelete")
+                .param("fallbackCategoryId",categoryFallbackId.toString());
+
+        mockMvc.perform(request)
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().is4xxClientError());
+    }
+
 }

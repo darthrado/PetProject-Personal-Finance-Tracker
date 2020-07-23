@@ -1,5 +1,7 @@
 package com.ryanev.personalfinancetracker.entities;
 
+import net.bytebuddy.implementation.bind.annotation.Default;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
@@ -18,10 +20,14 @@ public class MovementCategory {
     @NotEmpty
     private String name;
 
+    @Nullable
     private Boolean flagActive;
 
     @Nullable
     private String description;
+
+    @Nullable
+    private Long fallbackCategoryId;
 
     @ManyToOne(targetEntity = User.class,
             cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH},
@@ -73,5 +79,14 @@ public class MovementCategory {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    @Nullable
+    public Long getFallbackCategoryId() {
+        return fallbackCategoryId;
+    }
+
+    public void setFallbackCategoryId(@Nullable Long fallbackCategoryId) {
+        this.fallbackCategoryId = fallbackCategoryId;
     }
 }

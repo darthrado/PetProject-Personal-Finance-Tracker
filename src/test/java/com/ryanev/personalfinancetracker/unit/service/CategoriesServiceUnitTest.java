@@ -1,20 +1,26 @@
 package com.ryanev.personalfinancetracker.unit.service;
 
 import com.ryanev.personalfinancetracker.dao.CategoriesRepository;
+import com.ryanev.personalfinancetracker.dao.MovementsRepository;
 import com.ryanev.personalfinancetracker.dao.UserRepository;
+import com.ryanev.personalfinancetracker.entities.Movement;
 import com.ryanev.personalfinancetracker.entities.MovementCategory;
 import com.ryanev.personalfinancetracker.entities.User;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectCategoryIdException;
+import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
 import com.ryanev.personalfinancetracker.exceptions.InvalidCategoryException;
 import com.ryanev.personalfinancetracker.services.CategoriesService;
 import com.ryanev.personalfinancetracker.services.implementation.DefaultCategoriesService;
 import com.ryanev.personalfinancetracker.util.TestCategoryBuilder;
+import com.ryanev.personalfinancetracker.util.TestMovementBuilder;
 import com.ryanev.personalfinancetracker.util.TestUserBuilder;
+import org.hamcrest.Matchers;
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -41,6 +47,9 @@ public class CategoriesServiceUnitTest {
 
     @Mock
     CategoriesRepository categoriesRepository;
+
+    @Mock
+    MovementsRepository movementsRepository;
 
     @ParameterizedTest
     @ValueSource(ints = {4,7,44,23,10,0})
@@ -202,6 +211,152 @@ public class CategoriesServiceUnitTest {
         Mockito.when(categoriesRepository.findById(categoryId)).thenThrow(NoSuchElementException.class);
         //Act + Assert
         assertThatExceptionOfType(IncorrectCategoryIdException.class).isThrownBy(() -> categoriesService.changeCategoryFlagActive(categoryId,flagValue));
+
+    }
+
+    @Test
+    public void createDefaultCategoriesForUser_correctUserId_noDefaultCategoriesPresent_defaultCategoriesAreCorrectlyInserted() throws IncorrectUserIdException {
+        //Arrange
+        Long userId = 444L;
+
+        List<MovementCategory> listOfPresentCategories =
+                List.of(TestCategoryBuilder.createValidCategory().withName("This is not a default category").build());
+        Mockito.when(userRepository.existsById(userId)).thenReturn(true);
+        Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(TestUserBuilder.createValidUser().withId(userId).build()));
+        Mockito.when(categoriesRepository.findAllByUserId(userId)).thenReturn(listOfPresentCategories);
+
+        //Act
+        categoriesService.createDefaultCategoriesForUser(userId);
+        //Assert
+        ArgumentCaptor<List> elementsToSave = ArgumentCaptor.forClass(List.class);
+        Mockito.verify(categoriesRepository).saveAll(elementsToSave.capture());
+        assertThat(elementsToSave.getValue().size()).isEqualTo(2);
+    }
+
+    @Test
+    public void createDefaultCategoriesForUser_correctUserId_allDefaultCategoriesPresent_nothingIsInserted() throws IncorrectUserIdException {
+        //Arrange
+        Long userId = 444L;
+        List<MovementCategory> listOfPresentCategories =
+                List.of(TestCategoryBuilder.createValidCategory().withName("Income(DEFAULT)").build(),
+                        TestCategoryBuilder.createValidCategory().withName("Other Expenses(DEFAULT)").build());
+        Mockito.when(userRepository.existsById(userId)).thenReturn(true);
+        Mockito.when(categoriesRepository.findAllByUserId(userId)).thenReturn(listOfPresentCategories);
+
+        //Act
+        categoriesService.createDefaultCategoriesForUser(userId);
+        //Assert
+        ArgumentCaptor<List> elementsToSave = ArgumentCaptor.forClass(List.class);
+        Mockito.verify(categoriesRepository).saveAll(elementsToSave.capture());
+        assertThat(elementsToSave.getValue().size()).isEqualTo(0);
+    }
+
+    @Test
+    public void createDefaultCategoriesForUser_incorrectUserId_IncorrectUserIdExceptionIsThrown(){
+        //Arrange
+        Long userId = 444L;
+
+        Mockito.when(userRepository.existsById(userId)).thenReturn(false);
+
+        //Act + Assert
+        assertThatExceptionOfType(IncorrectUserIdException.class).isThrownBy(()->categoriesService.createDefaultCategoriesForUser(userId));
+        //Assert
+    }
+
+    @Test
+    public void getDefaultCategoriesForUser_correctUserId_onlyDefaultCategoriesAreReturned(){
+        //Arrange
+        Long userId = 4568L;
+        MovementCategory defaultCategoryIncome = TestCategoryBuilder.createValidCategory().withName("Income(DEFAULT)").build();
+        MovementCategory defaultCategoryExpenses = TestCategoryBuilder.createValidCategory().withName("Other Expenses(DEFAULT)").build();
+        List<MovementCategory> listOfPresentCategories =
+                List.of(defaultCategoryIncome,
+                        defaultCategoryExpenses,
+                        TestCategoryBuilder.createValidCategory().withName("ThisIsNotDefault").build(),
+                        TestCategoryBuilder.createValidCategory().withName("ThisIsAlsoNotDefault").build());
+
+        Mockito.when(categoriesRepository.findAllByUserId(userId)).thenReturn(listOfPresentCategories);
+        //Act
+        List<MovementCategory> result = categoriesService.getDefaultCategoriesForUser(userId);
+        //Assert
+        assertThat(result).containsExactly(defaultCategoryIncome,defaultCategoryExpenses);
+
+
+    }
+
+
+    //deleteCategoryById
+    @Test
+    public void deleteCategoryById_correctCategoryId_categoryIsSuccessfullyDeleted() throws IncorrectCategoryIdException {
+        //Arrange
+        Long fallbackCategoryId = 777L;
+        Long categoryToDeleteId = 888L;
+        MovementCategory fallbackCategory = TestCategoryBuilder
+                .createValidCategory()
+                .withId(fallbackCategoryId)
+                .withName("This is a fallback").build();
+
+        MovementCategory categoryToDelete = TestCategoryBuilder
+                .createValidCategory()
+                .withId(categoryToDeleteId)
+                .withFallbackCategoryId(fallbackCategoryId).build();
+
+        Mockito.when(categoriesRepository.findById(categoryToDeleteId)).thenReturn(Optional.of(categoryToDelete));
+        Mockito.when(categoriesRepository.findById(fallbackCategoryId)).thenReturn(Optional.of(fallbackCategory));
+        Mockito.when(movementsRepository.findAllByCategoryId(categoryToDeleteId))
+                .thenReturn(Collections.emptyList());
+
+        //Act
+        categoriesService.deleteCategoryById(categoryToDeleteId);
+        //Assert
+        Mockito.verify(categoriesRepository).deleteById(categoryToDeleteId);
+    }
+
+    @Test
+    public void deleteCategoryById_correctCategoryId_movementsAreSuccessfullyMigratedToFallbackCategory() throws IncorrectCategoryIdException {
+        //Arrange
+        Long fallbackCategoryId = 777L;
+        Long categoryToDeleteId = 888L;
+        MovementCategory fallbackCategory = TestCategoryBuilder
+                .createValidCategory()
+                .withId(fallbackCategoryId)
+                .withName("This is a fallback").build();
+
+        MovementCategory categoryToDelete = TestCategoryBuilder
+                .createValidCategory()
+                .withId(categoryToDeleteId)
+                .withFallbackCategoryId(fallbackCategoryId).build();
+
+        List<Movement> movementsBelongingToCategoryForDelete =
+                Collections.nCopies(5,TestMovementBuilder.createValidMovement().withCategory(categoryToDelete).build());
+
+        Mockito.when(categoriesRepository.findById(categoryToDeleteId)).thenReturn(Optional.of(categoryToDelete));
+        Mockito.when(categoriesRepository.findById(fallbackCategoryId)).thenReturn(Optional.of(fallbackCategory));
+        Mockito.when(movementsRepository.findAllByCategoryId(categoryToDeleteId))
+                .thenReturn(movementsBelongingToCategoryForDelete);
+
+        //Act
+        categoriesService.deleteCategoryById(categoryToDeleteId);
+        //Assert
+        ArgumentCaptor<List> elementsToSave = ArgumentCaptor.forClass(List.class);
+        Mockito.verify(movementsRepository).saveAll(elementsToSave.capture());
+        assertThat(elementsToSave.getValue().size()).isEqualTo(5);
+        elementsToSave.getValue()
+                .stream()
+                .map(f->(Movement)f)
+                .forEach(elem -> assertThat(((Movement) elem).getCategory()).isSameAs(fallbackCategory));
+    }
+
+    @Test
+    public void deleteCategoryById_incorrectCategoryId_IncorrectCategoryIdIsThrown(){
+        //Arrange
+        Long categoryToDeleteId = 888L;
+
+        Mockito.when(categoriesRepository.findById(categoryToDeleteId)).thenThrow(NoSuchElementException.class);
+
+        //Act + Assert
+        assertThatExceptionOfType(IncorrectCategoryIdException.class)
+                .isThrownBy(() ->categoriesService.deleteCategoryById(categoryToDeleteId));
 
     }
 

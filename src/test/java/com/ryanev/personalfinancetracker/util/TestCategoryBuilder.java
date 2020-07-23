@@ -60,6 +60,12 @@ public class TestCategoryBuilder {
         return this;
     }
 
+    public TestCategoryBuilder withFallbackCategoryId(Long categoryId){
+        categoryToBuild.setFallbackCategoryId(categoryId);
+
+        return this;
+    }
+
     public MovementCategory build(){
         return categoryToBuild;
     }

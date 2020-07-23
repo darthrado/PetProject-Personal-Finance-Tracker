@@ -18,6 +18,8 @@ create table if not exists movement_categories (
 	user_id BIGINT NOT NULL references users(id),
 	name VARCHAR(255) NOT NULL,
 	description VARCHAR(1000),
+	flag_active BOOLEAN NOT NULL DEFAULT true,
+	fallback_category_id BIGINT,
 	CONSTRAINT mvt_categ_uid_name_unique UNIQUE (user_id,name)
 );
 

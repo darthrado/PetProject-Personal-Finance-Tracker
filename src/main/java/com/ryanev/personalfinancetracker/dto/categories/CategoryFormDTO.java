@@ -12,6 +12,6 @@ public interface CategoryFormDTO {
     String getDescription();
     void setDescription(String description);
 
-    Boolean getFlagActive();
-    void setFlagActive(Boolean flagActive);
+    Long getFallbackCategoryId();
+    void setFallbackCategoryId(Long id);
 }

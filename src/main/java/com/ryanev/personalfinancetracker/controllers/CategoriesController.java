@@ -2,24 +2,24 @@ package com.ryanev.personalfinancetracker.controllers;
 
 import com.ryanev.personalfinancetracker.dto.categories.CategoryFormDTO;
 import com.ryanev.personalfinancetracker.dto.categories.CategoryViewDTO;
-import com.ryanev.personalfinancetracker.dto.categories.implementations.CategoryVeiwDtoAdapter;
+import com.ryanev.personalfinancetracker.dto.categories.implementations.CategoryVeiwDtoConcrete;
 import com.ryanev.personalfinancetracker.dto.categories.implementations.DefaultCategoryFormDTO;
+import com.ryanev.personalfinancetracker.entities.Movement;
 import com.ryanev.personalfinancetracker.entities.MovementCategory;
 import com.ryanev.personalfinancetracker.entities.User;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectCategoryIdException;
-import com.ryanev.personalfinancetracker.exceptions.IncorrectMovementIdException;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
 import com.ryanev.personalfinancetracker.exceptions.InvalidCategoryException;
+import com.ryanev.personalfinancetracker.exceptions.InvalidMovementException;
 import com.ryanev.personalfinancetracker.services.CategoriesService;
+import com.ryanev.personalfinancetracker.services.MovementsService;
 import com.ryanev.personalfinancetracker.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
@@ -61,7 +61,9 @@ public class CategoriesController {
 
         List<CategoryViewDTO> categoryViewDTOList = categoriesService.getCategoriesForUser(userId)
                 .stream()
-                .map(CategoryVeiwDtoAdapter::new)
+                .map(category -> new CategoryVeiwDtoConcrete(category,
+                        categoriesService.isCategoryDefault(category.getName()),
+                        buildControllerBaseURL(userId)))
                 .collect(Collectors.toList());
 
         model.addAttribute("categoriesList",categoryViewDTOList);
@@ -80,8 +82,9 @@ public class CategoriesController {
         }
 
         MovementCategory movementCategory = new MovementCategory();
+        List<MovementCategory> defaultCategories = categoriesService.getDefaultCategoriesForUser(userId);
 
-        model = loadCategoryFormModel(model,userId,"New",movementCategory);
+        model = loadCategoryFormModel(model,userId,"New",movementCategory,defaultCategories);
 
         return "categories/categories-form";
     }
@@ -102,8 +105,9 @@ public class CategoriesController {
         catch (NoSuchElementException e){
             throw new IncorrectCategoryIdException();
         }
+        List<MovementCategory> defaultCategories = categoriesService.getDefaultCategoriesForUser(userId);
 
-        model = loadCategoryFormModel(model,userId,"Update",movementCategory);
+        model = loadCategoryFormModel(model,userId,"Update",movementCategory,defaultCategories);
 
         return "categories/categories-form";
     }
@@ -118,8 +122,8 @@ public class CategoriesController {
         }
 
         MovementCategory movementCategory = categoriesService.getCategoryById(categoryId);
-
-        model = loadCategoryFormModel(model,userId,"Delete",movementCategory);
+        List<MovementCategory> defaultCategories = categoriesService.getDefaultCategoriesForUser(userId);
+        model = loadCategoryFormModel(model,userId,"Delete",movementCategory,defaultCategories);
 
         return "categories/categories-form";
     }
@@ -127,7 +131,8 @@ public class CategoriesController {
     private Model loadCategoryFormModel(Model model,
                                         Long userId,
                                         String action,
-                                        MovementCategory movementCategory){
+                                        MovementCategory movementCategory,
+                                        List<MovementCategory> defaultCategories){
 
         String baseUrl = buildControllerBaseURL(userId);
         String okButtonUrl;
@@ -152,6 +157,7 @@ public class CategoriesController {
         }
 
 
+        model.addAttribute("fallbackCategories",defaultCategories);
         model.addAttribute("flagInactiveCategory",flagInactiveCategory);
         model.addAttribute("okButtonText",action);
         model.addAttribute("okButtonUrl",okButtonUrl);
@@ -176,13 +182,35 @@ public class CategoriesController {
             throw new IncorrectUserIdException();
         }
 
-        MovementCategory movementCategory = new MovementCategory();
 
-        movementCategory.setId(categoryFormDTO.getId());
+        MovementCategory movementCategory;
+
+        if (categoryFormDTO.getId() == null){
+            movementCategory = new MovementCategory();
+            movementCategory.setFlagActive(true);
+        }
+        else {
+            movementCategory = categoriesService.getCategoryById(categoryFormDTO.getId());
+        }
+
         movementCategory.setName(categoryFormDTO.getName());
         movementCategory.setDescription(categoryFormDTO.getDescription());
         movementCategory.setUser(userService.getUserById(userId));
+        movementCategory.setFallbackCategoryId(categoryFormDTO.getFallbackCategoryId());
         movementCategory = categoriesService.saveCategory(movementCategory);
+
+        return "redirect:"+buildControllerBaseURL(userId);
+    }
+
+    @PostMapping("/delete/confirm")
+    public String confirmDeleteOfCategory(Model model,
+                                          @PathVariable("userId") Long userId,
+                                          CategoryFormDTO categoryFormDTO) throws IncorrectUserIdException, IncorrectCategoryIdException {
+        if(!checkIfUserExists(userId)){
+            throw new IncorrectUserIdException();
+        }
+
+        categoriesService.deleteCategoryById(categoryFormDTO.getId());
 
         return "redirect:"+buildControllerBaseURL(userId);
     }

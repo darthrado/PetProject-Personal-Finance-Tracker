@@ -8,6 +8,7 @@ public class DefaultCategoryFormDTO implements CategoryFormDTO {
     Long id;
     String name;
     String description;
+    Long fallbackCategoryId;
 
     public DefaultCategoryFormDTO() {
     }
@@ -17,6 +18,8 @@ public class DefaultCategoryFormDTO implements CategoryFormDTO {
             id = category.getId();
             name = category.getName();
             description = category.getDescription();
+            fallbackCategoryId = category.getFallbackCategoryId();
+
         }
     }
 
@@ -51,12 +54,12 @@ public class DefaultCategoryFormDTO implements CategoryFormDTO {
     }
 
     @Override
-    public Boolean getFlagActive() {
-        return null;
+    public Long getFallbackCategoryId() {
+        return fallbackCategoryId;
     }
 
     @Override
-    public void setFlagActive(Boolean flagActive) {
-
+    public void setFallbackCategoryId(Long id) {
+        this.fallbackCategoryId = id;
     }
 }

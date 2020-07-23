@@ -13,6 +13,10 @@
         <input type="hidden" th:field="${category.id}" />
         <input type="text" placeholder="Name" th:field="${category.name}" th:disabled="${disableFormFields}"/> <br/>
         <textarea type="text" placeholder="Description" th:field="${category.description}" th:disabled="${disableFormFields}"/> <br/>
+        <select th:field="${category.fallbackCategoryId}" th:disabled="${disableFormFields}" />
+        <option th:each="fallback: ${fallbackCategories}" th:value="${fallback.id}" th:text="${fallback.name}" th:selected="${category.fallbackCategoryId}==${fallback.id}"></option>
+        </select> <br/>
+
 
         <button type="submit" th:text="${action}"></button> <br/>
         <a th:href="${baseUrl}">Back</a>

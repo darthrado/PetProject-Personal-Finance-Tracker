@@ -10,4 +10,5 @@ public interface MovementsRepository extends CrudRepository<Movement,Long> {
     List<Movement> findAll();
 
     List<Movement> findAllByUserId(Long userId);
+    List<Movement> findAllByCategoryId(Long categoryId);
 }

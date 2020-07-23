@@ -20,12 +20,10 @@
     <tbody>
     <tr th:each="aCategory : ${categoriesList}">
         <td th:text="${aCategory.name}"></td>
-        <td th:if="${aCategory.flagActive}">Active</td>
-        <td th:unless="${aCategory.flagActive}">Disabled</td>
-        <td><a th:href="${baseUrl}+'/update?id='+${aCategory.id}">Edit</a></td>
-        <td><a th:if="${aCategory.flagActive}" th:with="statusUrl=${baseUrl}+'/change_status'" th:href="@{${statusUrl}(id=${aCategory.id}, enable=false)}">Disable</a></td>
-        <td><a th:unless="${aCategory.flagActive}" th:with="statusUrl=${baseUrl}+'/change_status'" th:href="@{${statusUrl}(id=${aCategory.id}, enable=true)}">Enable</a></td>
-        <td><a th:href="${baseUrl}+'/delete?id='+${aCategory.id}">Delete</a><td>
+        <td th:text="${aCategory.active}"></td>
+        <td th:unless="${aCategory.flagDefault}"><a th:href="${aCategory.updateLink}">Edit</a></td>
+        <td th:unless="${aCategory.flagDefault}"><a th:href="${aCategory.enableDisableLink}" th:text="${aCategory.enableDisableText}">Edit</a></td>
+        <td th:unless="${aCategory.flagDefault}"><a th:href="${aCategory.deleteLink}">Delete</a></td>
     </tr>
     </tbody>
 </table>

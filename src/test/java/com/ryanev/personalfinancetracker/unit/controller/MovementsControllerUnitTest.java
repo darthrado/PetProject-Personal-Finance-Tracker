@@ -486,6 +486,8 @@ public class MovementsControllerUnitTest {
                                                                             String unsignedAmount,
                                                                             String description) throws Exception {
 
+        Mockito.when(movementsService.getMovementById(Long.parseLong(movementId)))
+                .thenReturn(TestMovementBuilder.createValidMovement().withId(Long.parseLong(movementId)).build());
         Mockito.when(categoriesService.getCategoryById(categoryId))
                 .thenReturn(TestCategoryBuilder.createValidCategory().withId(categoryId).build());
 
@@ -527,6 +529,8 @@ public class MovementsControllerUnitTest {
                                                                                         String unsignedAmount,
                                                                                         String description) throws Exception {
 
+        Mockito.when(movementsService.getMovementById(Long.parseLong(movementId)))
+                .thenReturn(TestMovementBuilder.createValidMovement().withId(Long.parseLong(movementId)).build());
         Mockito.when(categoriesService.getCategoryById(categoryId))
                 .thenReturn(TestCategoryBuilder.createValidCategory().withId(categoryId).build());
         Mockito.when(movementsService.saveMovement(Mockito.argThat(movement -> movement.getAmount() == null)))
@@ -561,6 +565,8 @@ public class MovementsControllerUnitTest {
                                                                                         String unsignedAmount,
                                                                                         String description) throws Exception {
 
+        Mockito.when(movementsService.getMovementById(Long.parseLong(movementId)))
+                .thenReturn(TestMovementBuilder.createValidMovement().withId(Long.parseLong(movementId)).build());
         Mockito.when(categoriesService.getCategoryById(categoryId))
                 .thenReturn(TestCategoryBuilder.createValidCategory().withId(categoryId).build());
         Mockito.when(movementsService.saveMovement(Mockito.argThat(movement -> movement.getAmount() == 0)))
@@ -595,6 +601,8 @@ public class MovementsControllerUnitTest {
                                                                                            String unsignedAmount,
                                                                                            String description) throws Exception {
 
+        Mockito.when(movementsService.getMovementById(Long.parseLong(movementId)))
+                .thenReturn(TestMovementBuilder.createValidMovement().withId(Long.parseLong(movementId)).build());
         Mockito.when(categoriesService.getCategoryById(categoryId))
                 .thenReturn(TestCategoryBuilder.createValidCategory().withId(categoryId).build());
 
@@ -627,6 +635,8 @@ public class MovementsControllerUnitTest {
                                                                                            String unsignedAmount,
                                                                                            String description) throws Exception {
 
+        Mockito.when(movementsService.getMovementById(Long.parseLong(movementId)))
+                .thenReturn(TestMovementBuilder.createValidMovement().withId(Long.parseLong(movementId)).build());
         Mockito.when(categoriesService.getCategoryById(categoryId))
                 .thenReturn(TestCategoryBuilder.createValidCategory().withId(categoryId).build());
         Mockito.when(movementsService.saveMovement(Mockito.argThat(movement -> movement.getValueDate() == null)))
@@ -695,7 +705,8 @@ public class MovementsControllerUnitTest {
                                                                                       String flagAmountPositive,
                                                                                       String unsignedAmount,
                                                                                       String description) throws Exception {
-
+        Mockito.when(movementsService.getMovementById(Long.parseLong(movementId)))
+                .thenReturn(TestMovementBuilder.createValidMovement().withId(Long.parseLong(movementId)).build());
         Mockito.when(categoriesService.getCategoryById(categoryId))
                 .thenReturn(TestCategoryBuilder.createValidCategory().withId(categoryId).build());
         Mockito.when(movementsService.saveMovement(Mockito.argThat(movement -> movement.getName()==null||movement.getName().isBlank())))
@@ -762,6 +773,9 @@ public class MovementsControllerUnitTest {
                                                                                             String unsignedAmount,
                                                                                             String description) throws Exception {
 
+
+        Mockito.when(movementsService.getMovementById(Long.parseLong(movementId)))
+                .thenReturn(TestMovementBuilder.createValidMovement().withId(Long.parseLong(movementId)).build());
         Mockito.when(categoriesService.getCategoryById(categoryId))
                 .thenThrow(NoSuchElementException.class);
 
@@ -930,6 +944,43 @@ public class MovementsControllerUnitTest {
                 .andExpect(MockMvcResultMatchers
                         .model()
                         .attribute("categories", Matchers.hasItem(Matchers.hasProperty("name",Matchers.is("Games")))));
+    }
+
+
+    @ParameterizedTest
+    @CsvSource({"777,-6969,888,2020-01-15,First Salary of the Year,true,9000,New year new salary,SALARY"})
+    public void movementFormSave_CorrectPostRequest_existingMovement_existingEntityIsUsed(Long userId,
+                                                                               Long movementId,
+                                                                               Long categoryId,
+                                                                               String valueDate,
+                                                                               String name,
+                                                                               String flagAmountPositive,
+                                                                               String unsignedAmount,
+                                                                               String description) throws Exception {
+
+        Movement originalMoment = TestMovementBuilder.createValidMovement().withId(movementId).build();
+        Mockito.when(movementsService.getMovementById(movementId)).thenReturn(originalMoment);
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post(getControllerBaseURL(userId).concat("/save"))
+                .with(csrf())
+                .accept(MediaType.TEXT_HTML,MediaType.APPLICATION_XHTML_XML)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .param("id",movementId.toString())
+                .param("valueDate",valueDate)
+                .param("name",name)
+                .param("flagAmountPositive",flagAmountPositive)
+                .param("unsignedAmount",unsignedAmount)
+                .param("description",description)
+                .param("categoryId",categoryId.toString());
+
+        mockMvc.perform(request)
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().is3xxRedirection());
+
+        ArgumentCaptor<Movement> movementArgumentCaptor = ArgumentCaptor.forClass(Movement.class);
+        Mockito.verify(movementsService).saveMovement(movementArgumentCaptor.capture());
+        assertThat(movementArgumentCaptor.getValue()).isSameAs(originalMoment);
+        assertThat(movementArgumentCaptor.getValue().getId()).isEqualTo(movementId);
     }
 
 }

@@ -185,8 +185,12 @@ public class MovementsController {
         }
 
         //TODO this probably belongs to a builder, or some mapper class
-        Movement newMovement = new Movement();
-        newMovement.setId(newMovementDTO.getId());
+        Movement newMovement;
+        if (newMovementDTO.getId() != null){
+            newMovement=movementsService.getMovementById(newMovementDTO.getId());
+        }else {
+            newMovement = new Movement();
+        }
         newMovement.setName(newMovementDTO.getName());
         newMovement.setDescription(newMovementDTO.getDescription());
         newMovement.setValueDate(newMovementDTO.getValueDate());

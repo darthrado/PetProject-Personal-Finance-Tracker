@@ -1,13 +1,14 @@
 package com.ryanev.personalfinancetracker.services.implementation;
 
 import com.ryanev.personalfinancetracker.dao.CategoriesRepository;
+import com.ryanev.personalfinancetracker.dao.MovementsRepository;
 import com.ryanev.personalfinancetracker.dao.UserRepository;
+import com.ryanev.personalfinancetracker.entities.Movement;
 import com.ryanev.personalfinancetracker.entities.MovementCategory;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectCategoryIdException;
+import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
 import com.ryanev.personalfinancetracker.exceptions.InvalidCategoryException;
-import com.ryanev.personalfinancetracker.exceptions.InvalidMovementException;
 import com.ryanev.personalfinancetracker.services.CategoriesService;
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,10 @@ public class DefaultCategoriesService implements CategoriesService {
     private CategoriesRepository categoriesRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private MovementsRepository movementsRepository;
+
+    private final List<String> defaultCategoryNames = List.of("Income(DEFAULT)","Other Expenses(DEFAULT)");
 
     private void validateCategory(MovementCategory categoryForValidation) throws InvalidCategoryException {
 
@@ -64,8 +69,24 @@ public class DefaultCategoriesService implements CategoriesService {
     }
 
     @Override
-    public void deleteCategoryById(Long categoryId) {
+    public void deleteCategoryById(Long categoryId) throws IncorrectCategoryIdException {
 
+        MovementCategory categoryToDelete;
+
+        try {
+            categoryToDelete = getCategoryById(categoryId);
+        }catch (NoSuchElementException e){
+            throw new IncorrectCategoryIdException();
+        }
+
+
+        List<Movement> movementsToUpdate = movementsRepository.findAllByCategoryId(categoryId);
+        MovementCategory newCategoryForMovements = getCategoryById(categoryToDelete.getFallbackCategoryId());
+
+        movementsToUpdate.stream().forEach(movement -> movement.setCategory(newCategoryForMovements));
+        movementsRepository.saveAll(movementsToUpdate);
+
+        categoriesRepository.deleteById(categoryId);
     }
 
     @Override
@@ -91,5 +112,51 @@ public class DefaultCategoriesService implements CategoriesService {
     @Override
     public List<MovementCategory> getActiveCategoriesForUser(Long userId) {
         return categoriesRepository.findAllByUserId(userId).stream().filter(MovementCategory::getFlagActive).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MovementCategory> getDefaultCategoriesForUser(Long userId) {
+        return categoriesRepository.findAllByUserId(userId)
+                .stream()
+                .filter(category -> defaultCategoryNames.contains(category.getName()))
+                .collect(Collectors.toList());
+    }
+
+    private MovementCategory createDefaultCategoryWithName(Long userId, String name) throws NoSuchElementException{
+        MovementCategory toInsert = new MovementCategory();
+        toInsert.setName(name);
+        toInsert.setUser(userRepository.findById(userId).orElseThrow());
+        toInsert.setFlagActive(true);
+
+        return toInsert;
+    }
+
+    @Override
+    public void createDefaultCategoriesForUser(Long userId) throws IncorrectUserIdException {
+        if(!userRepository.existsById(userId))
+            throw new IncorrectUserIdException();
+
+        List<String> presentDefaultCategories = getDefaultCategoriesForUser(userId)
+                .stream()
+                .map(MovementCategory::getName)
+                .collect(Collectors.toList());
+
+        List<MovementCategory> toInsert;
+        try {
+            toInsert = defaultCategoryNames.stream()
+                    .filter(name -> !presentDefaultCategories.contains(name))
+                    .map(name -> createDefaultCategoryWithName(userId,name))
+                    .collect(Collectors.toList());
+        }catch (NoSuchElementException e){
+            throw new IncorrectUserIdException();
+        }
+
+
+        categoriesRepository.saveAll(toInsert);
+    }
+
+    @Override
+    public Boolean isCategoryDefault(String categoryName) {
+        return defaultCategoryNames.contains(categoryName);
     }
 }
