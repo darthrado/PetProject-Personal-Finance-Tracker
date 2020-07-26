@@ -1,36 +1,41 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Movements</title>
-</head>
+
+<head th:replace="layouts :: head"></head>
+
 <body>
 
+<nav th:replace="layouts :: navbar"></nav>
+
 <div>
-    <a  th:href="${baseUrl}+'/new'">New Movement</a>
+    <a  th:href="${baseUrl}+'/new'" class="btn btn-primary btn-sm mb-3">New Movement</a>
 
     <h2>List of Movements: </h2>
 
-    <table>
-        <thead>
-        <tr>
-            <th>Date</th>
-            <th>Name</th>
-            <th>Amount</th>
-            <th>Category</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="aMovement : ${movementsList}">
-            <td th:text="${aMovement.valueDate}"></td>
-            <td th:text="${aMovement.name}"></td>
-            <td th:text="${aMovement.signedAmount}"></td>
-            <td th:text="${aMovement.categoryName}"></td>
-            <td><a th:href="${baseUrl}+'/update?id='+${aMovement.id}">Edit</a></td>
-            <td><a th:href="${baseUrl}+'/delete?id='+${aMovement.id}">Delete</a><td>
-        </tr>
-        </tbody>
-    </table>
+    <div class="row">
+        <div class="col-md-6">
+            <table class="table table-bordered table-striped">
+                <thead class="thead-dark">
+                <tr>
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th>Amount</th>
+                    <th>Category</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="aMovement : ${movementsList}">
+                    <td th:text="${aMovement.valueDate}"></td>
+                    <td th:text="${aMovement.name}"></td>
+                    <td th:text="${aMovement.signedAmount}"></td>
+                    <td th:text="${aMovement.categoryName}"></td>
+                    <td><a th:href="${baseUrl}+'/update?id='+${aMovement.id}" class="btn btn-primary btn-sm mb-3">Edit</a></td>
+                    <td><a th:href="${baseUrl}+'/delete?id='+${aMovement.id}" class="btn btn-primary btn-sm mb-3">Delete</a><td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 </body>

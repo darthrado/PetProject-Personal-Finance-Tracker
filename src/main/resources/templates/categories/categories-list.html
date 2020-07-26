@@ -1,32 +1,37 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Categories List</title>
-</head>
+
+<head th:replace="layouts :: head"></head>
+
 <body>
 
-<a  th:href="${baseUrl}+'/new'">New Category</a>
+<nav th:replace="layouts :: navbar"></nav>
+
+<a  th:href="${baseUrl}+'/new'" class="btn btn-primary btn-sm mb-3">New Category</a>
 
 <h2>Categories List</h2>
 
-<table>
-    <thead>
-    <tr>
-        <th>Name</th>
-        <th>Status</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="aCategory : ${categoriesList}">
-        <td th:text="${aCategory.name}"></td>
-        <td th:text="${aCategory.active}"></td>
-        <td th:unless="${aCategory.flagDefault}"><a th:href="${aCategory.updateLink}">Edit</a></td>
-        <td th:unless="${aCategory.flagDefault}"><a th:href="${aCategory.enableDisableLink}" th:text="${aCategory.enableDisableText}">Edit</a></td>
-        <td th:unless="${aCategory.flagDefault}"><a th:href="${aCategory.deleteLink}">Delete</a></td>
-    </tr>
-    </tbody>
-</table>
+<div class="row">
+    <div class="col-md-6">
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
+            <tr>
+                <th>Name</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="aCategory : ${categoriesList}">
+                <td th:text="${aCategory.name}"></td>
+                <td th:text="${aCategory.active}"></td>
+                <td th:unless="${aCategory.flagDefault}"><a th:href="${aCategory.updateLink}" class="btn btn-primary btn-sm mb-3">Edit</a></td>
+                <td th:unless="${aCategory.flagDefault}"><a th:href="${aCategory.enableDisableLink}" th:text="${aCategory.enableDisableText}" class="btn btn-primary btn-sm mb-3">Edit</a></td>
+                <td th:unless="${aCategory.flagDefault}"><a th:href="${aCategory.deleteLink}" class="btn btn-primary btn-sm mb-3">Delete</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 
 </body>
 </html>
