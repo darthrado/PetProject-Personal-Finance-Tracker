@@ -34,6 +34,7 @@ import java.util.NoSuchElementException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
+@SuppressWarnings("SameReturnValue")
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(CategoriesController.class)
 public class CategoryControllerUnitTest {

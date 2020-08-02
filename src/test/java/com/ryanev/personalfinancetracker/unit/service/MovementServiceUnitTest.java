@@ -1,14 +1,14 @@
 package com.ryanev.personalfinancetracker.unit.service;
 
 
-import com.ryanev.personalfinancetracker.dao.CategoriesRepository;
 import com.ryanev.personalfinancetracker.dao.MovementsRepository;
-import com.ryanev.personalfinancetracker.dao.UserRepository;
 import com.ryanev.personalfinancetracker.entities.Movement;
 import com.ryanev.personalfinancetracker.entities.MovementCategory;
 import com.ryanev.personalfinancetracker.entities.User;
 import com.ryanev.personalfinancetracker.exceptions.InvalidMovementException;
+import com.ryanev.personalfinancetracker.services.CategoriesService;
 import com.ryanev.personalfinancetracker.services.MovementsService;
+import com.ryanev.personalfinancetracker.services.UserService;
 import com.ryanev.personalfinancetracker.services.implementation.DefaultMovementsService;
 import com.ryanev.personalfinancetracker.util.TestCategoryBuilder;
 import com.ryanev.personalfinancetracker.util.TestMovementBuilder;
@@ -22,7 +22,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -40,10 +39,10 @@ public class MovementServiceUnitTest {
     MovementsRepository movementsRepository;
 
     @Mock
-    UserRepository userRepository;
+    UserService userService;
 
     @Mock
-    CategoriesRepository categoriesRepository;
+    CategoriesService categoriesService;
 
 
     @ParameterizedTest
@@ -65,8 +64,8 @@ public class MovementServiceUnitTest {
     public void saveMovement_correctMovement_successfullyInsertsInRepository() throws InvalidMovementException {
         //Arrange
         Movement correctMovement = TestMovementBuilder.createValidMovement().build();
-        Mockito.when(userRepository.existsById(correctMovement.getUser().getId())).thenReturn(true);
-        Mockito.when(categoriesRepository.existsById(correctMovement.getCategory().getId())).thenReturn(true);
+        Mockito.when(userService.existsById(correctMovement.getUser().getId())).thenReturn(true);
+        Mockito.when(categoriesService.existsById(correctMovement.getCategory().getId())).thenReturn(true);
         //Act
         movementsService.saveMovement(correctMovement);
 
@@ -96,8 +95,8 @@ public class MovementServiceUnitTest {
         MovementCategory categoryNotPresentInRepo = TestCategoryBuilder.createValidCategory().withId(categoryId).build();
         Movement movementWithInvalidCategory = TestMovementBuilder.createValidMovement().withCategory(categoryNotPresentInRepo).build();
 
-        Mockito.when(userRepository.existsById(movementWithInvalidCategory.getUser().getId())).thenReturn(true);
-        Mockito.when(categoriesRepository.existsById(categoryId)).thenReturn(false);
+        Mockito.when(userService.existsById(movementWithInvalidCategory.getUser().getId())).thenReturn(true);
+        Mockito.when(categoriesService.existsById(categoryId)).thenReturn(false);
 
         //Act + Assert
         assertThatExceptionOfType(InvalidMovementException.class)
@@ -128,7 +127,7 @@ public class MovementServiceUnitTest {
         User userNotPresentInRepo = TestUserBuilder.createValidUser().withId(userId).build();
         Movement movementWithInvalidUser= TestMovementBuilder.createValidMovement().withUser(userNotPresentInRepo).build();
 
-        Mockito.when(userRepository.existsById(userId)).thenReturn(false);
+        Mockito.when(userService.existsById(userId)).thenReturn(false);
 
         //Act + Assert
         assertThatExceptionOfType(InvalidMovementException.class)
@@ -143,8 +142,8 @@ public class MovementServiceUnitTest {
         //Arrange
         Movement movementWithEmptyName= TestMovementBuilder.createValidMovement().withName("").build();
 
-        Mockito.when(userRepository.existsById(movementWithEmptyName.getUser().getId())).thenReturn(true);
-        Mockito.when(categoriesRepository.existsById(movementWithEmptyName.getCategory().getId())).thenReturn(true);
+        Mockito.when(userService.existsById(movementWithEmptyName.getUser().getId())).thenReturn(true);
+        Mockito.when(categoriesService.existsById(movementWithEmptyName.getCategory().getId())).thenReturn(true);
 
         //Act + Assert
         assertThatExceptionOfType(InvalidMovementException.class)
@@ -159,8 +158,8 @@ public class MovementServiceUnitTest {
         //Arrange
         Movement movementWithEmptyDate= TestMovementBuilder.createValidMovement().withDate(null).build();
 
-        Mockito.when(userRepository.existsById(movementWithEmptyDate.getUser().getId())).thenReturn(true);
-        Mockito.when(categoriesRepository.existsById(movementWithEmptyDate.getCategory().getId())).thenReturn(true);
+        Mockito.when(userService.existsById(movementWithEmptyDate.getUser().getId())).thenReturn(true);
+        Mockito.when(categoriesService.existsById(movementWithEmptyDate.getCategory().getId())).thenReturn(true);
 
         //Act + Assert
         assertThatExceptionOfType(InvalidMovementException.class)
@@ -175,8 +174,8 @@ public class MovementServiceUnitTest {
         //Arrange
         Movement movementWithEmptyName= TestMovementBuilder.createValidMovement().withAmount(0.00).build();
 
-        Mockito.when(userRepository.existsById(movementWithEmptyName.getUser().getId())).thenReturn(true);
-        Mockito.when(categoriesRepository.existsById(movementWithEmptyName.getCategory().getId())).thenReturn(true);
+        Mockito.when(userService.existsById(movementWithEmptyName.getUser().getId())).thenReturn(true);
+        Mockito.when(categoriesService.existsById(movementWithEmptyName.getCategory().getId())).thenReturn(true);
 
         //Act + Assert
         assertThatExceptionOfType(InvalidMovementException.class)

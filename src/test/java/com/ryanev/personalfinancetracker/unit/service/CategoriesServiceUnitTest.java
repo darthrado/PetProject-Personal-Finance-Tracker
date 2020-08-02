@@ -14,8 +14,6 @@ import com.ryanev.personalfinancetracker.services.implementation.DefaultCategori
 import com.ryanev.personalfinancetracker.util.TestCategoryBuilder;
 import com.ryanev.personalfinancetracker.util.TestMovementBuilder;
 import com.ryanev.personalfinancetracker.util.TestUserBuilder;
-import org.hamcrest.Matchers;
-import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -214,6 +212,7 @@ public class CategoriesServiceUnitTest {
 
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void createDefaultCategoriesForUser_correctUserId_noDefaultCategoriesPresent_defaultCategoriesAreCorrectlyInserted() throws IncorrectUserIdException {
         //Arrange
@@ -233,6 +232,7 @@ public class CategoriesServiceUnitTest {
         assertThat(elementsToSave.getValue().size()).isEqualTo(2);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void createDefaultCategoriesForUser_correctUserId_allDefaultCategoriesPresent_nothingIsInserted() throws IncorrectUserIdException {
         //Arrange
@@ -312,6 +312,7 @@ public class CategoriesServiceUnitTest {
         Mockito.verify(categoriesRepository).deleteById(categoryToDeleteId);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void deleteCategoryById_correctCategoryId_movementsAreSuccessfullyMigratedToFallbackCategory() throws IncorrectCategoryIdException {
         //Arrange

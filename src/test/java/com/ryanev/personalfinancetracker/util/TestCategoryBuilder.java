@@ -1,11 +1,10 @@
 package com.ryanev.personalfinancetracker.util;
 
-import com.ryanev.personalfinancetracker.dao.CategoriesRepository;
 import com.ryanev.personalfinancetracker.entities.MovementCategory;
 import com.ryanev.personalfinancetracker.entities.User;
 
 public class TestCategoryBuilder {
-    private MovementCategory categoryToBuild;
+    private final MovementCategory categoryToBuild;
 
     private TestCategoryBuilder(MovementCategory category){
         categoryToBuild = category;

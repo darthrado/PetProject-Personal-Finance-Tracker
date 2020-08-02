@@ -83,7 +83,7 @@ public class DefaultCategoriesService implements CategoriesService {
         List<Movement> movementsToUpdate = movementsRepository.findAllByCategoryId(categoryId);
         MovementCategory newCategoryForMovements = getCategoryById(categoryToDelete.getFallbackCategoryId());
 
-        movementsToUpdate.stream().forEach(movement -> movement.setCategory(newCategoryForMovements));
+        movementsToUpdate.forEach(movement -> movement.setCategory(newCategoryForMovements));
         movementsRepository.saveAll(movementsToUpdate);
 
         categoriesRepository.deleteById(categoryId);
@@ -158,5 +158,10 @@ public class DefaultCategoriesService implements CategoriesService {
     @Override
     public Boolean isCategoryDefault(String categoryName) {
         return defaultCategoryNames.contains(categoryName);
+    }
+
+    @Override
+    public Boolean existsById(Long id) {
+        return categoriesRepository.existsById(id);
     }
 }

@@ -58,6 +58,11 @@ create table if not exists target_details (
 	CONSTRAINT target_dets_id_date_unique UNIQUE(target_id,value_date)
 );
 
+create table if not exists users_cache_data (
+	id BIGINT NOT NULL UNIQUE PRIMARY KEY REFERENCES users(id),
+	min_movement_date DATE,
+	max_movement_date DATE,
+);
 
 
 

@@ -4,11 +4,10 @@ import com.ryanev.personalfinancetracker.dto.movements.MovementViewDTO;
 import com.ryanev.personalfinancetracker.entities.Movement;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 public class MovementViewDtoAdapter implements MovementViewDTO {
 
-    private Movement sourceMovement;
+    private final Movement sourceMovement;
 
     public MovementViewDtoAdapter(Movement sourceMovement) {
         this.sourceMovement = sourceMovement;

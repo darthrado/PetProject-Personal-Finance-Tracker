@@ -1,7 +1,5 @@
 package com.ryanev.personalfinancetracker.dto.movements;
 
-import com.ryanev.personalfinancetracker.entities.Movement;
-
 import java.time.LocalDate;
 
 public interface MovementFormDTO {

@@ -1,7 +1,5 @@
 package com.ryanev.personalfinancetracker.entities;
 
-import net.bytebuddy.implementation.bind.annotation.Default;
-import org.hibernate.annotations.ColumnDefault;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;

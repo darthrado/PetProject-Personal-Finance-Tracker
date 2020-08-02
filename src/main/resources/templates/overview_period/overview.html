@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="layouts :: head(title='Period Overview')"></head>
+<body>
+
+<nav th:replace="layouts :: navbar"></nav>
+
+<div>
+    <form th:action="${searchUri}"  method="get">
+        <span>Choose a period to view:</span>
+        <select id="month" name="month"/>
+        <option th:each="monthStr: ${listOfMonths}" th:value="${monthStr.first}" th:text="${monthStr.second}" th:selected="${monthStr.second}==${month}"></option>
+        </select>
+        <select id="year" name="year" />
+        <option th:each="yearValue: ${listOfYears}" th:value="${yearValue}" th:text="${yearValue}" th:selected="${yearValue}==${year}"></option>
+        </select>
+
+        <button type="submit" class="btn btn-primary btn-sm mb-3">Show</button>
+    </form>
+</div><br/>
+
+<h2 th:text="'Report for '+${month}+' '+${year}"></h2>
+
+<div class="col-md-6">
+    <h4>Income:</h4>
+
+    <table class="table table-bordered">
+        <tr th:each="anIncome : ${incomes}">
+            <td th:text="${anIncome.categoryName}"></td>
+            <td th:text="${anIncome.amount}"></td>
+        </tr>
+        <tr class="table-success">
+            <td>Total:</td>
+            <td th:text="${incomeTotal}"></td>
+        </tr>
+    </table>
+</div>
+<div class="col-md-6">
+<h4>Expense:</h4>
+
+<table class="table table-bordered">
+    <tr th:each="anExpense : ${expenses}">
+        <td th:text="${anExpense.categoryName}"></td>
+        <td th:text="${anExpense.amount}"></td>
+    </tr>
+    <tr class="table-danger">
+        <td>Total:</td>
+        <td th:text="${expenseTotal}"></td>
+    </tr>
+
+</table>
+</div>
+<div class="text-right col-md-6" th:text="'Saved this month: '+${totalSaved}"></div>
+
+</body>
+</html>

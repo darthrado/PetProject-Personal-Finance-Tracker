@@ -1,13 +1,9 @@
 package com.ryanev.personalfinancetracker.unit.service;
 
 import com.ryanev.personalfinancetracker.dao.UserRepository;
-import com.ryanev.personalfinancetracker.entities.MovementCategory;
 import com.ryanev.personalfinancetracker.entities.User;
-import com.ryanev.personalfinancetracker.services.CategoriesService;
 import com.ryanev.personalfinancetracker.services.UserService;
-import com.ryanev.personalfinancetracker.services.implementation.DefaultCategoriesService;
 import com.ryanev.personalfinancetracker.services.implementation.DefaultUserService;
-import com.ryanev.personalfinancetracker.util.TestCategoryBuilder;
 import com.ryanev.personalfinancetracker.util.TestUserBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -4,15 +4,12 @@ import com.ryanev.personalfinancetracker.dto.categories.CategoryFormDTO;
 import com.ryanev.personalfinancetracker.dto.categories.CategoryViewDTO;
 import com.ryanev.personalfinancetracker.dto.categories.implementations.CategoryVeiwDtoConcrete;
 import com.ryanev.personalfinancetracker.dto.categories.implementations.DefaultCategoryFormDTO;
-import com.ryanev.personalfinancetracker.entities.Movement;
 import com.ryanev.personalfinancetracker.entities.MovementCategory;
 import com.ryanev.personalfinancetracker.entities.User;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectCategoryIdException;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
 import com.ryanev.personalfinancetracker.exceptions.InvalidCategoryException;
-import com.ryanev.personalfinancetracker.exceptions.InvalidMovementException;
 import com.ryanev.personalfinancetracker.services.CategoriesService;
-import com.ryanev.personalfinancetracker.services.MovementsService;
 import com.ryanev.personalfinancetracker.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -23,6 +20,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+@SuppressWarnings({"ALL", "SameReturnValue"})
 @Controller
 @RequestMapping("/{userId}/categories")
 public class CategoriesController {
@@ -112,6 +110,7 @@ public class CategoriesController {
         return "categories/categories-form";
     }
 
+    @SuppressWarnings("SameReturnValue")
     @GetMapping("/delete")
     public String deleteCategoryPage(Model model,
                                      @PathVariable("userId") Long userId,

@@ -19,5 +19,5 @@ public interface CategoriesService {
     List<MovementCategory> getDefaultCategoriesForUser(Long userId);
     void createDefaultCategoriesForUser(Long userId) throws IncorrectUserIdException;
     Boolean isCategoryDefault(String categoryName);
-
+    Boolean existsById(Long id);
 }

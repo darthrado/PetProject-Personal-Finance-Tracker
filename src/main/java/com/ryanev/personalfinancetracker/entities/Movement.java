@@ -1,7 +1,6 @@
 package com.ryanev.personalfinancetracker.entities;
 
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;

@@ -6,13 +6,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 public class CategoryVeiwDtoConcrete implements CategoryViewDTO {
 
-    private String name;
-    private String active;
-    private String enableDisableText;
-    private String enableDisableLink;
-    private String updateLink;
-    private String deleteLink;
-    private Boolean flagDefault;
+    private final String name;
+    private final String active;
+    private final String enableDisableText;
+    private final String enableDisableLink;
+    private final String updateLink;
+    private final String deleteLink;
+    private final Boolean flagDefault;
 
     private final String ENABLE = "Enable";
     private final String DISABLE = "Disable";

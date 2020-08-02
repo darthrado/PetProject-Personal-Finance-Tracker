@@ -20,6 +20,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -66,6 +67,7 @@ public class MovementsController {
         List<MovementViewDTO> movementsList = movementsService.getMovementsForUser(userId)
                 .stream()
                 .map(MovementViewDtoAdapter::new)
+                .sorted(Comparator.comparing(MovementViewDtoAdapter::getValueDate).reversed())
                 .collect(Collectors.toList());
 
         model.addAttribute("baseUrl", buildControllerBaseURL(userId));

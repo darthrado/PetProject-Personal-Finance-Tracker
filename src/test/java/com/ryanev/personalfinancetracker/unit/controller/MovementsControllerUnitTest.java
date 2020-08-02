@@ -4,7 +4,6 @@ package com.ryanev.personalfinancetracker.unit.controller;
 import com.ryanev.personalfinancetracker.controllers.MovementsController;
 import com.ryanev.personalfinancetracker.entities.Movement;
 import com.ryanev.personalfinancetracker.entities.MovementCategory;
-import com.ryanev.personalfinancetracker.entities.User;
 import com.ryanev.personalfinancetracker.exceptions.InvalidMovementException;
 import com.ryanev.personalfinancetracker.services.CategoriesService;
 import com.ryanev.personalfinancetracker.services.MovementsService;

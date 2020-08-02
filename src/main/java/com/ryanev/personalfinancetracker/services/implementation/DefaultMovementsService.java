@@ -1,24 +1,25 @@
 package com.ryanev.personalfinancetracker.services.implementation;
-import com.ryanev.personalfinancetracker.dao.CategoriesRepository;
 import com.ryanev.personalfinancetracker.dao.MovementsRepository;
-import com.ryanev.personalfinancetracker.dao.UserRepository;
 import com.ryanev.personalfinancetracker.entities.Movement;
 import com.ryanev.personalfinancetracker.exceptions.InvalidMovementException;
+import com.ryanev.personalfinancetracker.services.CategoriesService;
 import com.ryanev.personalfinancetracker.services.MovementsService;
+import com.ryanev.personalfinancetracker.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
 public class DefaultMovementsService implements MovementsService {
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
     @Autowired
     private MovementsRepository movementsRepository;
     @Autowired
-    private CategoriesRepository categoriesRepository;
+    private CategoriesService categoriesService;
 
     private void validateMovement(Movement movementForValidation) throws InvalidMovementException {
         if (movementForValidation == null)
@@ -30,10 +31,10 @@ public class DefaultMovementsService implements MovementsService {
         if (movementForValidation.getUser() == null){
             throw new InvalidMovementException("User cannot be null");
         }
-        if (!userRepository.existsById(movementForValidation.getUser().getId())){
+        if (!userService.existsById(movementForValidation.getUser().getId())){
             throw new InvalidMovementException("User not found");
         }
-        if (!categoriesRepository.existsById(movementForValidation.getCategory().getId())){
+        if (!categoriesService.existsById(movementForValidation.getCategory().getId())){
             throw new InvalidMovementException("Category not found");
         }
         if (movementForValidation.getName() == null || movementForValidation.getName().isBlank()){
@@ -56,7 +57,9 @@ public class DefaultMovementsService implements MovementsService {
 
         validateMovement(newMovement);
 
-        return movementsRepository.save(newMovement);
+        Movement toReturn =  movementsRepository.save(newMovement);
+        userService.updateCacheWithMovementDate(newMovement.getUser().getId(),newMovement.getValueDate());
+        return toReturn;
     }
 
     @Override
@@ -79,5 +82,10 @@ public class DefaultMovementsService implements MovementsService {
     @Override
     public List<Movement> getAll() {
         return movementsRepository.findAll();
+    }
+
+    @Override
+    public List<Movement> getMovementsForUserAndPeriod(Long userId, LocalDate startDate, LocalDate endDate) {
+        return movementsRepository.findAllByUserIdAndPeriod(userId,startDate,endDate);
     }
 }

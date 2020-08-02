@@ -3,7 +3,7 @@ package com.ryanev.personalfinancetracker.util;
 import com.ryanev.personalfinancetracker.entities.User;
 
 public class TestUserBuilder {
-    User userToBuild;
+    final User userToBuild;
 
     private TestUserBuilder(User user){
         userToBuild=user;

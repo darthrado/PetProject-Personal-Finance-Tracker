@@ -3,12 +3,11 @@ package com.ryanev.personalfinancetracker.util;
 import com.ryanev.personalfinancetracker.entities.Movement;
 import com.ryanev.personalfinancetracker.entities.MovementCategory;
 import com.ryanev.personalfinancetracker.entities.User;
-import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
 public class TestMovementBuilder {
-    private Movement movementToBuild;
+    private final Movement movementToBuild;
 
     private TestMovementBuilder(Movement movement){
         movementToBuild = movement;

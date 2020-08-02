@@ -4,7 +4,6 @@ import com.ryanev.personalfinancetracker.dto.movements.MovementFormDTO;
 import com.ryanev.personalfinancetracker.entities.Movement;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 public class DefaultMovementFormDTO implements MovementFormDTO {
     private Long id;
