@@ -1,6 +1,6 @@
 package com.ryanev.personalfinancetracker.services.implementation;
-import com.ryanev.personalfinancetracker.dao.MovementsRepository;
-import com.ryanev.personalfinancetracker.entities.Movement;
+import com.ryanev.personalfinancetracker.data.repo.movements.MovementsRepository;
+import com.ryanev.personalfinancetracker.data.entities.Movement;
 import com.ryanev.personalfinancetracker.exceptions.InvalidMovementException;
 import com.ryanev.personalfinancetracker.services.CategoriesService;
 import com.ryanev.personalfinancetracker.services.MovementsService;

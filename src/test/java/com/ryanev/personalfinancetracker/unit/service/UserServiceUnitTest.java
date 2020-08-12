@@ -1,10 +1,10 @@
 package com.ryanev.personalfinancetracker.unit.service;
 
-import com.ryanev.personalfinancetracker.dao.UserRepository;
-import com.ryanev.personalfinancetracker.entities.User;
+import com.ryanev.personalfinancetracker.data.repo.users.UserRepository;
+import com.ryanev.personalfinancetracker.data.entities.User;
 import com.ryanev.personalfinancetracker.services.UserService;
 import com.ryanev.personalfinancetracker.services.implementation.DefaultUserService;
-import com.ryanev.personalfinancetracker.util.TestUserBuilder;
+import com.ryanev.personalfinancetracker.util.user.TestUserBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

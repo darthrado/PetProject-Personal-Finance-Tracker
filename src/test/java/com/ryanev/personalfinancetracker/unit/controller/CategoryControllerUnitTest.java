@@ -1,7 +1,7 @@
 package com.ryanev.personalfinancetracker.unit.controller;
 
-import com.ryanev.personalfinancetracker.controllers.CategoriesController;
-import com.ryanev.personalfinancetracker.entities.MovementCategory;
+import com.ryanev.personalfinancetracker.web.controllers.CategoriesController;
+import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectCategoryIdException;
 import com.ryanev.personalfinancetracker.exceptions.InvalidCategoryException;
 import com.ryanev.personalfinancetracker.services.CategoriesService;

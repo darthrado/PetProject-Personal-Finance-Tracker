@@ -1,10 +1,10 @@
 package com.ryanev.personalfinancetracker.services.implementation;
 
-import com.ryanev.personalfinancetracker.dao.CategoriesRepository;
-import com.ryanev.personalfinancetracker.dao.MovementsRepository;
-import com.ryanev.personalfinancetracker.dao.UserRepository;
-import com.ryanev.personalfinancetracker.entities.Movement;
-import com.ryanev.personalfinancetracker.entities.MovementCategory;
+import com.ryanev.personalfinancetracker.data.repo.categories.CategoriesRepository;
+import com.ryanev.personalfinancetracker.data.repo.movements.MovementsRepository;
+import com.ryanev.personalfinancetracker.data.repo.users.UserRepository;
+import com.ryanev.personalfinancetracker.data.entities.Movement;
+import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectCategoryIdException;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
 import com.ryanev.personalfinancetracker.exceptions.InvalidCategoryException;

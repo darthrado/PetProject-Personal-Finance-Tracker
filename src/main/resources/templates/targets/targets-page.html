@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="layouts :: head(title='Targets Overview')"></head>
+<body>
+
+<nav th:replace="layouts :: navbar"></nav>
+
+<h2>Here be Targets</h2>
+
+<div class="groove_border col-md-4">
+    <br>
+    <form th:action="${savingsTargetUpdateURL}" th:object="${savingsTarget}" method="POST">
+        <div class="row">
+            <div class="col-md-4">Savings Target:</div>
+            <div class="col-md-4">
+                <input type="number" th:field="${savingsTarget.amount}" />
+            </div>
+        </div>
+        <br>
+        <button type="submit" class="btn btn-primary btn-sm mb-3">Save</button>
+    </form>
+</div>
+
+<br>
+
+<div class="groove_border col-md-6">
+    <h4>Expense Targets:</h4>
+
+    <form th:action="${expensesTargetUpdateURL}" th:object="${expenseTargetsForm}" method="POST">
+        <div class="row"  th:each="expenseTarget,rowNum : *{targets}">
+            <div class="col-md-4" th:text="*{targets[__${rowNum.index}__].categoryName}"></div>
+            <div class="col-md-4">
+                <input type="hidden" th:field="*{targets[__${rowNum.index}__].targetId}">
+                <input type="number" th:field="*{targets[__${rowNum.index}__].amount}">
+            </div>
+        </div>
+        <br>
+        <button type="submit" class="btn btn-primary btn-sm mb-3">Save</button>
+    </form>
+</div>
+</body>
+</html>

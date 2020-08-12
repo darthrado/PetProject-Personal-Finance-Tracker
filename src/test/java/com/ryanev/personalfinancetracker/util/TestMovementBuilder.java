@@ -1,8 +1,9 @@
 package com.ryanev.personalfinancetracker.util;
 
-import com.ryanev.personalfinancetracker.entities.Movement;
-import com.ryanev.personalfinancetracker.entities.MovementCategory;
-import com.ryanev.personalfinancetracker.entities.User;
+import com.ryanev.personalfinancetracker.data.entities.Movement;
+import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
+import com.ryanev.personalfinancetracker.data.entities.User;
+import com.ryanev.personalfinancetracker.util.user.TestUserBuilder;
 
 import java.time.LocalDate;
 

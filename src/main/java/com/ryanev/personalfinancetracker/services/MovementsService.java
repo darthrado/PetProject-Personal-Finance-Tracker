@@ -1,6 +1,6 @@
 package com.ryanev.personalfinancetracker.services;
 
-import com.ryanev.personalfinancetracker.entities.Movement;
+import com.ryanev.personalfinancetracker.data.entities.Movement;
 import com.ryanev.personalfinancetracker.exceptions.InvalidMovementException;
 
 import java.time.LocalDate;

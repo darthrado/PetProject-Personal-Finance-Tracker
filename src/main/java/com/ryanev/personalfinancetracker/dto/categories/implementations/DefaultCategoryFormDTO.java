@@ -1,7 +1,7 @@
 package com.ryanev.personalfinancetracker.dto.categories.implementations;
 
 import com.ryanev.personalfinancetracker.dto.categories.CategoryFormDTO;
-import com.ryanev.personalfinancetracker.entities.MovementCategory;
+import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
 
 public class DefaultCategoryFormDTO implements CategoryFormDTO {
 

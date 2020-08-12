@@ -1,8 +1,8 @@
 package com.ryanev.personalfinancetracker.dto.overview.implementations;
 
 import com.ryanev.personalfinancetracker.dto.overview.ReportLineDTO;
-import com.ryanev.personalfinancetracker.entities.Movement;
-import com.ryanev.personalfinancetracker.entities.MovementCategory;
+import com.ryanev.personalfinancetracker.data.entities.Movement;
+import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
 
 import java.util.List;
 import java.util.Map;

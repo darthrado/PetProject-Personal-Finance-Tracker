@@ -1,8 +1,8 @@
 package com.ryanev.personalfinancetracker.integration.controller;
 
-import com.ryanev.personalfinancetracker.entities.Movement;
-import com.ryanev.personalfinancetracker.entities.MovementCategory;
-import com.ryanev.personalfinancetracker.entities.User;
+import com.ryanev.personalfinancetracker.data.entities.Movement;
+import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
+import com.ryanev.personalfinancetracker.data.entities.User;
 import com.ryanev.personalfinancetracker.services.CategoriesService;
 import com.ryanev.personalfinancetracker.services.MovementsService;
 import com.ryanev.personalfinancetracker.services.UserService;

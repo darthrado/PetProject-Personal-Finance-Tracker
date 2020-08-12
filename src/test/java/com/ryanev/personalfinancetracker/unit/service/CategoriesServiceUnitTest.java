@@ -1,11 +1,11 @@
 package com.ryanev.personalfinancetracker.unit.service;
 
-import com.ryanev.personalfinancetracker.dao.CategoriesRepository;
-import com.ryanev.personalfinancetracker.dao.MovementsRepository;
-import com.ryanev.personalfinancetracker.dao.UserRepository;
-import com.ryanev.personalfinancetracker.entities.Movement;
-import com.ryanev.personalfinancetracker.entities.MovementCategory;
-import com.ryanev.personalfinancetracker.entities.User;
+import com.ryanev.personalfinancetracker.data.repo.categories.CategoriesRepository;
+import com.ryanev.personalfinancetracker.data.repo.movements.MovementsRepository;
+import com.ryanev.personalfinancetracker.data.repo.users.UserRepository;
+import com.ryanev.personalfinancetracker.data.entities.Movement;
+import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
+import com.ryanev.personalfinancetracker.data.entities.User;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectCategoryIdException;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
 import com.ryanev.personalfinancetracker.exceptions.InvalidCategoryException;
@@ -13,7 +13,7 @@ import com.ryanev.personalfinancetracker.services.CategoriesService;
 import com.ryanev.personalfinancetracker.services.implementation.DefaultCategoriesService;
 import com.ryanev.personalfinancetracker.util.TestCategoryBuilder;
 import com.ryanev.personalfinancetracker.util.TestMovementBuilder;
-import com.ryanev.personalfinancetracker.util.TestUserBuilder;
+import com.ryanev.personalfinancetracker.util.user.TestUserBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;

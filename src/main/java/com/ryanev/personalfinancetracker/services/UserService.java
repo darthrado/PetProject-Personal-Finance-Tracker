@@ -1,7 +1,7 @@
 package com.ryanev.personalfinancetracker.services;
 
-import com.ryanev.personalfinancetracker.entities.User;
-import com.ryanev.personalfinancetracker.entities.UserCacheData;
+import com.ryanev.personalfinancetracker.data.entities.User;
+import com.ryanev.personalfinancetracker.data.entities.UserCacheData;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
 
 import java.time.LocalDate;

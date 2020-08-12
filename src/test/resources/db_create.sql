@@ -43,8 +43,9 @@ create sequence if not exists seq_targets;
 create table if not exists targets (
 	id BIGINT NOT NULL UNIQUE DEFAULT nextval('seq_targets') PRIMARY KEY,
 	user_id BIGINT NOT NULL references users(id), 
-	name VARCHAR(255) NOT NULL,
-	CONSTRAINT targets_uid_name_unique UNIQUE(user_id,name)
+	type VARCHAR(255) NOT NULL,
+	external_id BIGINT,
+	CONSTRAINT targets_uid_name_unique UNIQUE(user_id,type,external_id)
 );
 
 --create table target_details

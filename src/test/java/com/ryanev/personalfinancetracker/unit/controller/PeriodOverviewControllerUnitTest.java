@@ -1,18 +1,18 @@
 package com.ryanev.personalfinancetracker.unit.controller;
 
 
-import com.ryanev.personalfinancetracker.controllers.PeriodOverviewController;
-import com.ryanev.personalfinancetracker.entities.Movement;
-import com.ryanev.personalfinancetracker.entities.MovementCategory;
-import com.ryanev.personalfinancetracker.entities.UserCacheData;
+import com.ryanev.personalfinancetracker.web.controllers.PeriodOverviewController;
+import com.ryanev.personalfinancetracker.data.entities.Movement;
+import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
+import com.ryanev.personalfinancetracker.data.entities.UserCacheData;
 import com.ryanev.personalfinancetracker.services.CategoriesService;
 import com.ryanev.personalfinancetracker.services.DateProvider;
 import com.ryanev.personalfinancetracker.services.MovementsService;
 import com.ryanev.personalfinancetracker.services.UserService;
 import com.ryanev.personalfinancetracker.util.TestCategoryBuilder;
 import com.ryanev.personalfinancetracker.util.TestMovementBuilder;
-import com.ryanev.personalfinancetracker.util.TestUserBuilder;
-import com.ryanev.personalfinancetracker.util.TestUserCacheBuilder;
+import com.ryanev.personalfinancetracker.util.user.TestUserBuilder;
+import com.ryanev.personalfinancetracker.util.user.TestUserCacheBuilder;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
