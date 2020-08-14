@@ -2,7 +2,7 @@ package com.ryanev.personalfinancetracker.services.implementation;
 import com.ryanev.personalfinancetracker.data.repo.movements.MovementsRepository;
 import com.ryanev.personalfinancetracker.data.entities.Movement;
 import com.ryanev.personalfinancetracker.exceptions.InvalidMovementException;
-import com.ryanev.personalfinancetracker.services.CategoriesService;
+import com.ryanev.personalfinancetracker.services.categories.CategoriesService;
 import com.ryanev.personalfinancetracker.services.MovementsService;
 import com.ryanev.personalfinancetracker.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

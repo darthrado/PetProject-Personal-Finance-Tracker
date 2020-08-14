@@ -1,4 +1,4 @@
-package com.ryanev.personalfinancetracker.services;
+package com.ryanev.personalfinancetracker.services.categories;
 
 import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectCategoryIdException;

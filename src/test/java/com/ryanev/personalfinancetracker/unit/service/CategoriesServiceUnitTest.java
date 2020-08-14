@@ -9,8 +9,9 @@ import com.ryanev.personalfinancetracker.data.entities.User;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectCategoryIdException;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
 import com.ryanev.personalfinancetracker.exceptions.InvalidCategoryException;
-import com.ryanev.personalfinancetracker.services.CategoriesService;
-import com.ryanev.personalfinancetracker.services.implementation.DefaultCategoriesService;
+import com.ryanev.personalfinancetracker.services.categories.CategoriesService;
+import com.ryanev.personalfinancetracker.services.categories.CategoryChangeNotifier;
+import com.ryanev.personalfinancetracker.services.categories.DefaultCategoriesService;
 import com.ryanev.personalfinancetracker.util.TestCategoryBuilder;
 import com.ryanev.personalfinancetracker.util.TestMovementBuilder;
 import com.ryanev.personalfinancetracker.util.user.TestUserBuilder;
@@ -48,6 +49,9 @@ public class CategoriesServiceUnitTest {
 
     @Mock
     MovementsRepository movementsRepository;
+
+    @Mock
+    CategoryChangeNotifier categoryChangeNotifier;
 
     @ParameterizedTest
     @ValueSource(ints = {4,7,44,23,10,0})

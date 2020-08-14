@@ -11,7 +11,7 @@ import com.ryanev.personalfinancetracker.exceptions.IncorrectCategoryIdException
 import com.ryanev.personalfinancetracker.exceptions.IncorrectMovementIdException;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
 import com.ryanev.personalfinancetracker.exceptions.InvalidMovementException;
-import com.ryanev.personalfinancetracker.services.CategoriesService;
+import com.ryanev.personalfinancetracker.services.categories.CategoriesService;
 import com.ryanev.personalfinancetracker.services.MovementsService;
 import com.ryanev.personalfinancetracker.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

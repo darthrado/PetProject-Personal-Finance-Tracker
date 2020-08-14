@@ -7,7 +7,7 @@ import com.ryanev.personalfinancetracker.web.controllers.PeriodOverviewControlle
 import com.ryanev.personalfinancetracker.data.entities.Movement;
 import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
 import com.ryanev.personalfinancetracker.data.entities.UserCacheData;
-import com.ryanev.personalfinancetracker.services.CategoriesService;
+import com.ryanev.personalfinancetracker.services.categories.CategoriesService;
 import com.ryanev.personalfinancetracker.services.DateProvider;
 import com.ryanev.personalfinancetracker.services.MovementsService;
 import com.ryanev.personalfinancetracker.services.UserService;

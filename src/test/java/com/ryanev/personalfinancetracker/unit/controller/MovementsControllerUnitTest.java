@@ -5,7 +5,7 @@ import com.ryanev.personalfinancetracker.web.controllers.MovementsController;
 import com.ryanev.personalfinancetracker.data.entities.Movement;
 import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
 import com.ryanev.personalfinancetracker.exceptions.InvalidMovementException;
-import com.ryanev.personalfinancetracker.services.CategoriesService;
+import com.ryanev.personalfinancetracker.services.categories.CategoriesService;
 import com.ryanev.personalfinancetracker.services.MovementsService;
 import com.ryanev.personalfinancetracker.services.UserService;
 import com.ryanev.personalfinancetracker.util.TestCategoryBuilder;

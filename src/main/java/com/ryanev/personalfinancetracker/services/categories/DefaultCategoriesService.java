@@ -1,4 +1,4 @@
-package com.ryanev.personalfinancetracker.services.implementation;
+package com.ryanev.personalfinancetracker.services.categories;
 
 import com.ryanev.personalfinancetracker.data.repo.categories.CategoriesRepository;
 import com.ryanev.personalfinancetracker.data.repo.movements.MovementsRepository;
@@ -8,7 +8,7 @@ import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectCategoryIdException;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
 import com.ryanev.personalfinancetracker.exceptions.InvalidCategoryException;
-import com.ryanev.personalfinancetracker.services.CategoriesService;
+import com.ryanev.personalfinancetracker.services.categories.CategoriesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -25,6 +25,8 @@ public class DefaultCategoriesService implements CategoriesService {
     private UserRepository userRepository;
     @Autowired
     private MovementsRepository movementsRepository;
+    @Autowired
+    private CategoryChangeNotifier categoryChangeNotifier;
 
     private final List<String> defaultCategoryNames = List.of("Income(DEFAULT)","Other Expenses(DEFAULT)");
 
@@ -57,15 +59,28 @@ public class DefaultCategoriesService implements CategoriesService {
     @Override
     public MovementCategory saveCategory(MovementCategory category) throws InvalidCategoryException {
 
+        Boolean flagCategoryExists=false;
+        if(category!=null){
+            flagCategoryExists = category.getId()==null?false:true;
+        }
+
+
+        MovementCategory savedCategory;
         validateCategory(category);
 
         try {
-            return categoriesRepository.save(category);
+            savedCategory = categoriesRepository.save(category);
         }
         catch (DataIntegrityViolationException e){
             //TODO handle the violated constraint specifically; rethrow the exception otherwise
             throw new InvalidCategoryException("Save would violate data integrity");
         }
+
+        if(!flagCategoryExists){
+            categoryChangeNotifier.notifyAllObservers(savedCategory, CategoryObserver.NewState.CREATE);
+        }
+
+        return savedCategory;
     }
 
     @Override
@@ -85,6 +100,8 @@ public class DefaultCategoriesService implements CategoriesService {
 
         movementsToUpdate.forEach(movement -> movement.setCategory(newCategoryForMovements));
         movementsRepository.saveAll(movementsToUpdate);
+
+        categoryChangeNotifier.notifyAllObservers(categoryToDelete, CategoryObserver.NewState.DELETE);
 
         categoriesRepository.deleteById(categoryId);
     }

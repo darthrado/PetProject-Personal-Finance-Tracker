@@ -8,16 +8,17 @@ import com.ryanev.personalfinancetracker.exceptions.IncorrectTargetAmountExcepti
 import com.ryanev.personalfinancetracker.exceptions.IncorrectTargetIdException;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
 import com.ryanev.personalfinancetracker.services.UserService;
+import com.ryanev.personalfinancetracker.services.categories.CategoryChangeNotifier;
 import com.ryanev.personalfinancetracker.services.dto.targets.TargetExpensesAndAmountDTO;
 import com.ryanev.personalfinancetracker.services.targets.core.TargetsService;
-import com.ryanev.personalfinancetracker.services.targets.expences.TargetCategorySyncService;
+import com.ryanev.personalfinancetracker.services.targets.expences.TargetCategoryObserver;
 import com.ryanev.personalfinancetracker.services.targets.expences.TargetExpensesService;
 import com.ryanev.personalfinancetracker.services.targets.expences.TargetExpensesServiceImpl;
 import com.ryanev.personalfinancetracker.util.target.TestTargetDetailBuilder;
 import com.ryanev.personalfinancetracker.util.target.TestTargetExpensesBuilder;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -31,9 +32,6 @@ import java.util.stream.Collectors;
 @ExtendWith(MockitoExtension.class)
 public class TargetServiceExpensesUnitTest {
 
-    @InjectMocks
-    TargetExpensesService targetExpensesService = new TargetExpensesServiceImpl();
-
     @Mock
     UserService userService;
 
@@ -44,7 +42,22 @@ public class TargetServiceExpensesUnitTest {
     TargetsExpensesRepository targetsExpensesRepository;
 
     @Mock
-    TargetCategorySyncService targetCategorySyncService;
+    CategoryChangeNotifier categoryChangeNotifier;
+
+    @Mock
+    TargetCategoryObserver targetCategoryObserver;
+
+    TargetExpensesService targetExpensesService;
+
+    @BeforeEach
+    public void setUp() {
+        targetExpensesService = new TargetExpensesServiceImpl(
+                userService,
+                targetsService,
+                targetsExpensesRepository,
+                categoryChangeNotifier,
+                targetCategoryObserver);
+    }
 
     private void mockUserServiceCalls(){
         Mockito.when(userService.existsById(Mockito.anyLong())).thenReturn(true);

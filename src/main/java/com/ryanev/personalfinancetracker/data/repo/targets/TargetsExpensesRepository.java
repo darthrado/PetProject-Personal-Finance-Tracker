@@ -6,6 +6,7 @@ import org.springframework.data.repository.CrudRepository;
 
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TargetsExpensesRepository extends CrudRepository<TargetExpense,Long> {
 
@@ -15,5 +16,7 @@ public interface TargetsExpensesRepository extends CrudRepository<TargetExpense,
     List<TargetExpense> getAllByUserId(Long userId);
 
     Boolean existsByCategoryId(Long id);
+
+    Optional<TargetExpense> getByCategoryId(Long categoryId);
 
 }
