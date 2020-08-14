@@ -37,21 +37,32 @@
     </table>
 </div>
 <div class="col-md-6">
-<h4>Expense:</h4>
+    <h4>Expense:</h4>
 
-<table class="table table-bordered">
-    <tr th:each="anExpense : ${expenses}">
-        <td th:text="${anExpense.categoryName}"></td>
-        <td th:text="${anExpense.amount}"></td>
-    </tr>
-    <tr class="table-danger">
-        <td>Total:</td>
-        <td th:text="${expenseTotal}"></td>
-    </tr>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Target</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="anExpense : ${expenses}">
+                <td th:text="${anExpense.categoryName}"></td>
+                <td th:text="${anExpense.amount}"></td>
+                <td th:text="${anExpense.target}"></td>
+            </tr>
+            <tr class="table-danger">
+                <td>Total:</td>
+                <td th:text="${expenseTotal}"></td>
+            </tr>
+        </tbody>
 
-</table>
+    </table>
 </div>
-<div class="text-right col-md-6" th:text="'Saved this month: '+${totalSaved}"></div>
+<h4 class="text-right col-md-6" th:text="'Saved this month: '+${totalSaved}"></h4>
+<h4 class="text-right col-md-6" th:text="'Savings Target: '+${savingsTarget}"></h4>
 
 </body>
 </html>

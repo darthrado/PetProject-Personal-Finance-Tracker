@@ -1,8 +1,8 @@
 package com.ryanev.personalfinancetracker.web.controllers;
 
 
-import com.ryanev.personalfinancetracker.dto.targets.TargetExpensesDTO;
-import com.ryanev.personalfinancetracker.dto.targets.TargetSavingsDTO;
+import com.ryanev.personalfinancetracker.web.dto.targets.TargetExpensesDTO;
+import com.ryanev.personalfinancetracker.web.dto.targets.TargetSavingsDTO;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectTargetAmountException;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectTargetIdException;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
@@ -19,12 +19,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.persistence.MapsId;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/{userId}/targets")

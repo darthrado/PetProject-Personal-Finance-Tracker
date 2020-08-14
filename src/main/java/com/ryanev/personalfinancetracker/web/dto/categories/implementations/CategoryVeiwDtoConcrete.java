@@ -1,6 +1,6 @@
-package com.ryanev.personalfinancetracker.dto.categories.implementations;
+package com.ryanev.personalfinancetracker.web.dto.categories.implementations;
 
-import com.ryanev.personalfinancetracker.dto.categories.CategoryViewDTO;
+import com.ryanev.personalfinancetracker.web.dto.categories.CategoryViewDTO;
 import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
 import org.springframework.web.util.UriComponentsBuilder;
 

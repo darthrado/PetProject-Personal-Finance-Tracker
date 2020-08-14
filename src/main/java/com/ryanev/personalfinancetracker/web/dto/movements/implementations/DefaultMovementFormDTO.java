@@ -1,6 +1,6 @@
-package com.ryanev.personalfinancetracker.dto.movements.implementations;
+package com.ryanev.personalfinancetracker.web.dto.movements.implementations;
 
-import com.ryanev.personalfinancetracker.dto.movements.MovementFormDTO;
+import com.ryanev.personalfinancetracker.web.dto.movements.MovementFormDTO;
 import com.ryanev.personalfinancetracker.data.entities.Movement;
 
 import java.time.LocalDate;

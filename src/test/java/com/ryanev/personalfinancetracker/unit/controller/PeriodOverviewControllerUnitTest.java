@@ -1,6 +1,8 @@
 package com.ryanev.personalfinancetracker.unit.controller;
 
 
+import com.ryanev.personalfinancetracker.services.targets.expences.TargetExpensesService;
+import com.ryanev.personalfinancetracker.services.targets.savings.TargetSavingsService;
 import com.ryanev.personalfinancetracker.web.controllers.PeriodOverviewController;
 import com.ryanev.personalfinancetracker.data.entities.Movement;
 import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
@@ -46,6 +48,10 @@ public class PeriodOverviewControllerUnitTest {
     private MovementsService movementsService;
     @MockBean
     private DateProvider dateProvider;
+    @MockBean
+    TargetSavingsService targetSavingsService;
+    @MockBean
+    TargetExpensesService targetExpensesService;
 
     private String getControllerBaseURL(Long userId){
         return "/"+userId+"/overview";

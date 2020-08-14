@@ -9,6 +9,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface TargetExpensesService {
-    List<TargetExpensesAndAmountDTO> getExpenseTargetNameAndAmount(Long userId, LocalDate date) throws IncorrectUserIdException, IncorrectTargetIdException;
+    List<TargetExpensesAndAmountDTO> getExpenseTargetNameAndAmount(Long userId, LocalDate date) throws IncorrectUserIdException;
     void saveExpensesTargetAmount(Long targetId,Double amount) throws IncorrectTargetIdException, IncorrectTargetAmountException;
 }

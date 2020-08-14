@@ -1,4 +1,4 @@
-package com.ryanev.personalfinancetracker.dto.categories;
+package com.ryanev.personalfinancetracker.web.dto.categories;
 
 public interface CategoryFormDTO {
     Long getId();

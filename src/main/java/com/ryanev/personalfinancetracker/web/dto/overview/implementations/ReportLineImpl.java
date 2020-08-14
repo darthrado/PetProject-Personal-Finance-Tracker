@@ -1,6 +1,6 @@
-package com.ryanev.personalfinancetracker.dto.overview.implementations;
+package com.ryanev.personalfinancetracker.web.dto.overview.implementations;
 
-import com.ryanev.personalfinancetracker.dto.overview.ReportLineDTO;
+import com.ryanev.personalfinancetracker.web.dto.overview.ReportLineDTO;
 
 public class ReportLineImpl implements ReportLineDTO {
 

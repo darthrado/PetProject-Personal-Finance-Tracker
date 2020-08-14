@@ -1,9 +1,9 @@
 package com.ryanev.personalfinancetracker.web.controllers;
 
-import com.ryanev.personalfinancetracker.dto.movements.MovementFormDTO;
-import com.ryanev.personalfinancetracker.dto.movements.MovementViewDTO;
-import com.ryanev.personalfinancetracker.dto.movements.implementations.DefaultMovementFormDTO;
-import com.ryanev.personalfinancetracker.dto.movements.implementations.MovementViewDtoAdapter;
+import com.ryanev.personalfinancetracker.web.dto.movements.MovementFormDTO;
+import com.ryanev.personalfinancetracker.web.dto.movements.MovementViewDTO;
+import com.ryanev.personalfinancetracker.web.dto.movements.implementations.DefaultMovementFormDTO;
+import com.ryanev.personalfinancetracker.web.dto.movements.implementations.MovementViewDtoAdapter;
 import com.ryanev.personalfinancetracker.data.entities.Movement;
 import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
 import com.ryanev.personalfinancetracker.data.entities.User;

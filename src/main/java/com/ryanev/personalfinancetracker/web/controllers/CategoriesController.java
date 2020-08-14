@@ -1,9 +1,9 @@
 package com.ryanev.personalfinancetracker.web.controllers;
 
-import com.ryanev.personalfinancetracker.dto.categories.CategoryFormDTO;
-import com.ryanev.personalfinancetracker.dto.categories.CategoryViewDTO;
-import com.ryanev.personalfinancetracker.dto.categories.implementations.CategoryVeiwDtoConcrete;
-import com.ryanev.personalfinancetracker.dto.categories.implementations.DefaultCategoryFormDTO;
+import com.ryanev.personalfinancetracker.web.dto.categories.CategoryFormDTO;
+import com.ryanev.personalfinancetracker.web.dto.categories.CategoryViewDTO;
+import com.ryanev.personalfinancetracker.web.dto.categories.implementations.CategoryVeiwDtoConcrete;
+import com.ryanev.personalfinancetracker.web.dto.categories.implementations.DefaultCategoryFormDTO;
 import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
 import com.ryanev.personalfinancetracker.data.entities.User;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectCategoryIdException;

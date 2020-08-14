@@ -1,7 +1,12 @@
 package com.ryanev.personalfinancetracker.web.controllers;
 
-import com.ryanev.personalfinancetracker.dto.overview.ReportLineDTO;
-import com.ryanev.personalfinancetracker.dto.overview.implementations.ReportLinesCreator;
+import com.ryanev.personalfinancetracker.exceptions.IncorrectTargetIdException;
+import com.ryanev.personalfinancetracker.services.dto.targets.TargetExpensesAndAmountDTO;
+import com.ryanev.personalfinancetracker.services.targets.expences.TargetExpensesService;
+import com.ryanev.personalfinancetracker.services.targets.savings.TargetSavingsService;
+import com.ryanev.personalfinancetracker.web.dto.overview.ReportLineDTO;
+import com.ryanev.personalfinancetracker.web.dto.overview.ReportLineWithTargetDTO;
+import com.ryanev.personalfinancetracker.web.dto.overview.implementations.ReportLinesCreator;
 import com.ryanev.personalfinancetracker.data.entities.Movement;
 import com.ryanev.personalfinancetracker.data.entities.UserCacheData;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
@@ -38,6 +43,12 @@ public class PeriodOverviewController {
 
     @Autowired
     DateProvider dateProvider;
+
+    @Autowired
+    TargetSavingsService targetSavingsService;
+
+    @Autowired
+    TargetExpensesService targetExpensesService;
 
     private static final String controllerPath  = "overview";
     private static final String slash = "/";
@@ -77,24 +88,23 @@ public class PeriodOverviewController {
         List<Movement> incomeList = movementList.stream().filter(f -> f.getAmount()>0).collect(Collectors.toList());
         List<Movement> expenseList = movementList.stream().filter(f -> f.getAmount()<0).collect(Collectors.toList());
 
+        List<TargetExpensesAndAmountDTO> expenseTargets = targetExpensesService.getExpenseTargetNameAndAmount(userId,startDate);
+
         ReportLinesCreator reportCreator = new ReportLinesCreator();
         List<ReportLineDTO> incomeReportList = reportCreator.createReportFromListOfMovements(incomeList);
-        List<ReportLineDTO> expenseReportList = reportCreator.createReportFromListOfMovements(expenseList);
+        List<ReportLineWithTargetDTO> expenseReportList =
+                reportCreator.createReportFromListOfMovementsWithTargets(expenseList,expenseTargets);
 
         Double incomeTotal = incomeReportList.stream().mapToDouble(ReportLineDTO::getAmount).sum();
-        Double expenseTotal = expenseReportList.stream().mapToDouble(ReportLineDTO::getAmount).sum();
+        Double expenseTotal = expenseReportList.stream().mapToDouble(ReportLineWithTargetDTO::getAmount).sum();
+
 
         List<Pair<Integer,String>> listOfMonths = buildMonthDropdown();
-        List<Integer> listOfYears;
-        UserCacheData userCache = userService.getUserCache(userId);
-        if(userCache != null && userCache.getMinMovementDate() !=null && userCache.getMaxMovementDate() != null){
-            listOfYears = IntStream.range(userCache.getMinMovementDate().getYear(),userCache.getMaxMovementDate().getYear()+1)
-                    .boxed().collect(Collectors.toList());
-        }
-        else {
-            listOfYears = List.of(today.getYear());
-        }
 
+        UserCacheData userCache = userService.getUserCache(userId);
+        List<Integer> listOfYears = buildListOfYears(today, userCache);
+
+        Double savingsTarget = targetSavingsService.getTargetSavingsAmount(userId,startDate);
 
         model.addAttribute("searchUri",searchUri);
         model.addAttribute("month",Month.of(month).getDisplayName(TextStyle.FULL_STANDALONE, Locale.ENGLISH));
@@ -106,8 +116,21 @@ public class PeriodOverviewController {
         model.addAttribute("totalSaved",incomeTotal-expenseTotal);
         model.addAttribute("listOfMonths",listOfMonths);
         model.addAttribute("listOfYears",listOfYears);
+        model.addAttribute("savingsTarget",savingsTarget);
 
         return "overview_period/overview";
+    }
+
+    private List<Integer> buildListOfYears(LocalDate today, UserCacheData userCache) {
+        List<Integer> listOfYears;
+        if(userCache != null && userCache.getMinMovementDate() !=null && userCache.getMaxMovementDate() != null){
+            listOfYears = IntStream.range(userCache.getMinMovementDate().getYear(),userCache.getMaxMovementDate().getYear()+1)
+                    .boxed().collect(Collectors.toList());
+        }
+        else {
+            listOfYears = List.of(today.getYear());
+        }
+        return listOfYears;
     }
 
 

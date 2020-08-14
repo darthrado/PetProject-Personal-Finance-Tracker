@@ -1,4 +1,4 @@
-package com.ryanev.personalfinancetracker.dto.movements;
+package com.ryanev.personalfinancetracker.web.dto.movements;
 
 import java.time.LocalDate;
 

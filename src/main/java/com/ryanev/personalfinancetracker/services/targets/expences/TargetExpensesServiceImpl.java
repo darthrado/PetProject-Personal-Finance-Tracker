@@ -30,7 +30,7 @@ public class TargetExpensesServiceImpl implements TargetExpensesService {
     TargetsExpensesRepository targetsExpensesRepository;
 
     @Override
-    public List<TargetExpensesAndAmountDTO> getExpenseTargetNameAndAmount(Long userId, LocalDate date) throws IncorrectUserIdException, IncorrectTargetIdException {
+    public List<TargetExpensesAndAmountDTO> getExpenseTargetNameAndAmount(Long userId, LocalDate date) throws IncorrectUserIdException {
         if (!userService.existsById(userId)){
             throw new IncorrectUserIdException();
         }
@@ -44,7 +44,14 @@ public class TargetExpensesServiceImpl implements TargetExpensesService {
                 .collect(Collectors.toList());
 
         for (TargetExpensesAndAmountDTO target:targetActiveExpensesDTO) {
-            target.setAmount(targetsService.getLatestDetailForTargetAndDate(target.getTargetId(),date).getAmount());
+            try {
+                target.setAmount(targetsService.getLatestDetailForTargetAndDate(target.getTargetId(), date).getAmount());
+            }
+            catch(IncorrectTargetIdException e){
+                target.setAmount(0.0);
+                //no target detail for that period so amount is 0
+                //TODO handle this with proper exception IncorrectTargetIdException is not the correct exception
+            }
         }
 
         return targetActiveExpensesDTO;

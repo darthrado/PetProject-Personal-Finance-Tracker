@@ -46,7 +46,7 @@ public class TargetSavingsServiceImpl implements TargetSavingsService {
     }
 
     @Override
-    public Double getTargetSavingsAmount(Long userId, LocalDate date) throws IncorrectUserIdException, IncorrectTargetIdException {
+    public Double getTargetSavingsAmount(Long userId, LocalDate date) throws IncorrectUserIdException {
         if (!userService.existsById(userId)){
             throw new IncorrectUserIdException();
         }
@@ -55,7 +55,15 @@ public class TargetSavingsServiceImpl implements TargetSavingsService {
 
         targetSavings = getTargetSavingsAndInitializeIfMissing(userId);
 
-        return targetsService.getLatestDetailForTargetAndDate(targetSavings.getTargetId(),date).getAmount();
+        try {
+            return targetsService.getLatestDetailForTargetAndDate(targetSavings.getTargetId(),date).getAmount();
+        }
+        catch (IncorrectTargetIdException e){
+            return 0.0;
+            //if no target line for the past return 0
+            //TODO make the service throw a proper exception for that use case
+        }
+
     }
 
     private TargetSavings initializeTargetSavingsData(Long userId) throws IncorrectUserIdException {

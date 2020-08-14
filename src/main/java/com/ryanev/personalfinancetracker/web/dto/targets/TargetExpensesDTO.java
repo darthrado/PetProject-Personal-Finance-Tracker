@@ -1,4 +1,4 @@
-package com.ryanev.personalfinancetracker.dto.targets;
+package com.ryanev.personalfinancetracker.web.dto.targets;
 
 import com.ryanev.personalfinancetracker.services.dto.targets.TargetExpensesAndAmountDTO;
 
