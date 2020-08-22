@@ -1,6 +1,5 @@
 package com.ryanev.personalfinancetracker.web.controllers;
 
-import com.ryanev.personalfinancetracker.exceptions.IncorrectTargetIdException;
 import com.ryanev.personalfinancetracker.services.dto.targets.TargetExpensesAndAmountDTO;
 import com.ryanev.personalfinancetracker.services.targets.expences.TargetExpensesService;
 import com.ryanev.personalfinancetracker.services.targets.savings.TargetSavingsService;
@@ -12,7 +11,7 @@ import com.ryanev.personalfinancetracker.data.entities.UserCacheData;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
 import com.ryanev.personalfinancetracker.services.DateProvider;
 import com.ryanev.personalfinancetracker.services.MovementsService;
-import com.ryanev.personalfinancetracker.services.UserService;
+import com.ryanev.personalfinancetracker.services.users.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Controller;

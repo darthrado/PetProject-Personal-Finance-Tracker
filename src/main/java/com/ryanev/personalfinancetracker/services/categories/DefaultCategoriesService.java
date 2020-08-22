@@ -8,10 +8,11 @@ import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectCategoryIdException;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
 import com.ryanev.personalfinancetracker.exceptions.InvalidCategoryException;
-import com.ryanev.personalfinancetracker.services.categories.CategoriesService;
+import com.ryanev.personalfinancetracker.services.crud_observer.CrudChangeNotifier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -77,13 +78,17 @@ public class DefaultCategoriesService implements CategoriesService {
         }
 
         if(!flagCategoryExists){
-            categoryChangeNotifier.notifyAllObservers(savedCategory, CategoryObserver.NewState.CREATE);
+            categoryChangeNotifier.notifyAllObservers(savedCategory, CrudChangeNotifier.NewState.CREATE);
+        }
+        else {
+            categoryChangeNotifier.notifyAllObservers(savedCategory, CrudChangeNotifier.NewState.UPDATE);
         }
 
         return savedCategory;
     }
 
     @Override
+    @Transactional
     public void deleteCategoryById(Long categoryId) throws IncorrectCategoryIdException {
 
         MovementCategory categoryToDelete;
@@ -101,7 +106,7 @@ public class DefaultCategoriesService implements CategoriesService {
         movementsToUpdate.forEach(movement -> movement.setCategory(newCategoryForMovements));
         movementsRepository.saveAll(movementsToUpdate);
 
-        categoryChangeNotifier.notifyAllObservers(categoryToDelete, CategoryObserver.NewState.DELETE);
+        categoryChangeNotifier.notifyAllObservers(categoryToDelete, CrudChangeNotifier.NewState.DELETE);
 
         categoriesRepository.deleteById(categoryId);
     }
@@ -124,6 +129,7 @@ public class DefaultCategoriesService implements CategoriesService {
 
         categoryToModify.setFlagActive(flagActive);
         categoriesRepository.save(categoryToModify);
+        categoryChangeNotifier.notifyAllObservers(categoryToModify, CrudChangeNotifier.NewState.UPDATE);
     }
 
     @Override
@@ -168,8 +174,8 @@ public class DefaultCategoriesService implements CategoriesService {
             throw new IncorrectUserIdException();
         }
 
-
         categoriesRepository.saveAll(toInsert);
+        categoryChangeNotifier.notifyAllObservers(toInsert, CrudChangeNotifier.NewState.CREATE);
     }
 
     @Override

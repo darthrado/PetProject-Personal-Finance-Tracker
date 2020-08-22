@@ -10,7 +10,7 @@ import com.ryanev.personalfinancetracker.exceptions.IncorrectCategoryIdException
 import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
 import com.ryanev.personalfinancetracker.exceptions.InvalidCategoryException;
 import com.ryanev.personalfinancetracker.services.categories.CategoriesService;
-import com.ryanev.personalfinancetracker.services.UserService;
+import com.ryanev.personalfinancetracker.services.users.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

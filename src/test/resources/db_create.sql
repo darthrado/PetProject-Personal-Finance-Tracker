@@ -3,11 +3,7 @@ create sequence if not exists seq_users ;
 
 create table if not exists users (
 	id BIGINT NOT NULL UNIQUE DEFAULT nextval('seq_users') PRIMARY KEY,
-	username varchar(255) NOT NULL,
-	password varchar(255) NOT NULL ,
-	email varchar(255) NOT NULL unique,
-	role varchar(255),
-	active boolean
+	username varchar(255) NOT NULL UNIQUE,
 );
 
 --create table categories
@@ -65,6 +61,13 @@ create table if not exists users_cache_data (
 	max_movement_date DATE,
 );
 
+create table if not exists users_auth (
+	id BIGINT NOT NULL UNIQUE PRIMARY KEY REFERENCES users(id),
+	password varchar(255) NOT NULL ,
+	email varchar(255) NOT NULL unique,
+	role varchar(255),
+	active boolean
+);
 
 
 

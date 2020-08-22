@@ -5,7 +5,7 @@ import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectCategoryIdException;
 import com.ryanev.personalfinancetracker.exceptions.InvalidCategoryException;
 import com.ryanev.personalfinancetracker.services.categories.CategoriesService;
-import com.ryanev.personalfinancetracker.services.UserService;
+import com.ryanev.personalfinancetracker.services.users.UserService;
 import com.ryanev.personalfinancetracker.util.TestCategoryBuilder;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;

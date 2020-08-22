@@ -7,7 +7,7 @@ import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
 import com.ryanev.personalfinancetracker.exceptions.InvalidMovementException;
 import com.ryanev.personalfinancetracker.services.categories.CategoriesService;
 import com.ryanev.personalfinancetracker.services.MovementsService;
-import com.ryanev.personalfinancetracker.services.UserService;
+import com.ryanev.personalfinancetracker.services.users.UserService;
 import com.ryanev.personalfinancetracker.util.TestCategoryBuilder;
 import com.ryanev.personalfinancetracker.util.TestMovementBuilder;
 import org.hamcrest.Matchers;

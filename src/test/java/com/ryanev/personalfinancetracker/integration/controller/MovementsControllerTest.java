@@ -5,7 +5,7 @@ import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
 import com.ryanev.personalfinancetracker.data.entities.User;
 import com.ryanev.personalfinancetracker.services.categories.CategoriesService;
 import com.ryanev.personalfinancetracker.services.MovementsService;
-import com.ryanev.personalfinancetracker.services.UserService;
+import com.ryanev.personalfinancetracker.services.users.UserService;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

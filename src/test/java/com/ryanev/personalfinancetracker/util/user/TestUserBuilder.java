@@ -13,8 +13,6 @@ public class TestUserBuilder {
         User newUser = new User();
         newUser.setId(777L);
         newUser.setUsername("TestUser");
-        newUser.setEmail("test_mail@gmail.com");
-        newUser.setPassword("more_secure_than_nap");
 
         return new TestUserBuilder(newUser);
     }
@@ -27,18 +25,6 @@ public class TestUserBuilder {
 
     public TestUserBuilder withUsername(String username){
         userToBuild.setUsername(username);
-
-        return this;
-    }
-
-    public TestUserBuilder withPassword(String password){
-        userToBuild.setPassword(password);
-
-        return this;
-    }
-
-    public TestUserBuilder withEmail(String email){
-        userToBuild.setEmail(email);
 
         return this;
     }

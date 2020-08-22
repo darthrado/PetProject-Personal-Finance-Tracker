@@ -1,8 +1,9 @@
 package com.ryanev.personalfinancetracker.services.categories;
 
 import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
+import com.ryanev.personalfinancetracker.services.crud_observer.*;
+import org.springframework.stereotype.Service;
 
-public interface CategoryChangeNotifier {
-    void notifyAllObservers(MovementCategory category,CategoryObserver.NewState stateChange);
-    void addObserver(CategoryObserver observer);
+@Service
+public class CategoryChangeNotifier extends CrudChangeNotifierImpl<MovementCategory> {
 }

@@ -16,8 +16,6 @@ public class User {
     private Long id;
 
     private String username;
-    private String password;
-    private String email;
 
     @OneToMany(mappedBy = "id",
             cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH},
@@ -29,11 +27,10 @@ public class User {
             fetch = FetchType.LAZY)
     private List<MovementCategory> movementCategories;
 
-    @Nullable
-    private String role;
-
-    @Nullable
-    private Boolean active;
+    @OneToMany(mappedBy = "id",
+            cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.PERSIST,CascadeType.REFRESH},
+            fetch = FetchType.LAZY)
+    private List<Target> targets;
 
     public Long getId() {
         return id;
@@ -49,38 +46,5 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    @Nullable
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(@Nullable String role) {
-        this.role = role;
-    }
-
-    public Boolean isActive() {
-        return active;
-    }
-
-    public void setActive(Boolean active) {
-        this.active = active;
     }
 }

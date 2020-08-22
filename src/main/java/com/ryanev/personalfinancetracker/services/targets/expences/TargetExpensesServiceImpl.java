@@ -1,11 +1,12 @@
 package com.ryanev.personalfinancetracker.services.targets.expences;
 
+import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
 import com.ryanev.personalfinancetracker.data.repo.targets.TargetsExpensesRepository;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectTargetAmountException;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectTargetIdException;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
-import com.ryanev.personalfinancetracker.services.UserService;
-import com.ryanev.personalfinancetracker.services.categories.CategoryChangeNotifier;
+import com.ryanev.personalfinancetracker.services.crud_observer.CrudChangeNotifier;
+import com.ryanev.personalfinancetracker.services.users.UserService;
 import com.ryanev.personalfinancetracker.services.dto.targets.TargetExpensesAndAmountDTO;
 import com.ryanev.personalfinancetracker.services.targets.core.TargetsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,23 +25,17 @@ public class TargetExpensesServiceImpl implements TargetExpensesService {
 
     TargetsExpensesRepository targetsExpensesRepository;
 
-    CategoryChangeNotifier categoryChangeNotifier;
-
-    TargetCategoryObserver targetCategoryObserver;
+    CrudChangeNotifier<MovementCategory> categoryChangeNotifier;
 
     @Autowired
     public TargetExpensesServiceImpl(UserService userService,
                                      TargetsService targetsService,
                                      TargetsExpensesRepository targetsExpensesRepository,
-                                     CategoryChangeNotifier categoryChangeNotifier,
-                                     TargetCategoryObserver targetCategoryObserver) {
+                                     CrudChangeNotifier<MovementCategory> categoryChangeNotifier) {
         this.userService = userService;
         this.targetsService = targetsService;
         this.targetsExpensesRepository = targetsExpensesRepository;
         this.categoryChangeNotifier = categoryChangeNotifier;
-        this.targetCategoryObserver = targetCategoryObserver;
-
-        this.categoryChangeNotifier.addObserver(targetCategoryObserver);
     }
 
     @Override

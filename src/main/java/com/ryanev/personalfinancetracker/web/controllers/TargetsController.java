@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Controller
 @RequestMapping("/{userId}/targets")
@@ -123,7 +124,7 @@ public class TargetsController {
         return newExpenseTargets
                     .entrySet()
                     .stream()
-                    .filter(expenseTarget -> !expenseTarget.getValue().equals(currentExpenseTargets.get(expenseTarget.getKey())))
+                    .filter(expenseTarget -> !Objects.equals(expenseTarget.getValue(),currentExpenseTargets.get(expenseTarget.getKey())))
                     .collect(HashMap::new, (m, v)->m.put(v.getKey(), v.getValue()), HashMap::putAll);
     }
 

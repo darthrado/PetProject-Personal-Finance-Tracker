@@ -5,42 +5,52 @@ import com.ryanev.personalfinancetracker.data.entities.Target;
 import com.ryanev.personalfinancetracker.data.entities.TargetExpense;
 import com.ryanev.personalfinancetracker.data.repo.targets.TargetsExpensesRepository;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
-import com.ryanev.personalfinancetracker.services.categories.CategoryObserver;
+import com.ryanev.personalfinancetracker.services.crud_observer.CrudChangeNotifier;
+import com.ryanev.personalfinancetracker.services.crud_observer.CrudChangeObserver;
+import com.ryanev.personalfinancetracker.services.crud_observer.SimpleCrudChangeObserver;
 import com.ryanev.personalfinancetracker.services.targets.core.TargetsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class TargetCategoryObserver implements CategoryObserver {
+public class TargetCategoryObserver extends SimpleCrudChangeObserver<MovementCategory> {
 
     TargetsService targetsService;
 
     TargetsExpensesRepository targetsExpensesRepository;
 
     @Autowired
-    public TargetCategoryObserver(TargetsService targetsService, TargetsExpensesRepository targetsExpensesRepository) {
+    public TargetCategoryObserver(CrudChangeNotifier<MovementCategory> notifier,
+                                  TargetsService targetsService,
+                                  TargetsExpensesRepository targetsExpensesRepository) {
+        super(notifier);
         this.targetsService = targetsService;
         this.targetsExpensesRepository = targetsExpensesRepository;
     }
 
     @Override
-    @Transactional
-    public void notify(MovementCategory category, NewState newState) {
-        switch (newState){
-            case CREATE:
-                try {
-                    createNewExpenseTarget(category);
-                } catch (IncorrectUserIdException e) {
-                    e.printStackTrace();
-                }
-                break;
-            case DELETE:
-                deleteExpenseTarget(category); break;
-        }
+    public void notifyCreate(Collection<MovementCategory> categories) {
+        categories.stream().forEach(category -> {
+            try {
+                createNewExpenseTarget(category);
+            } catch (IncorrectUserIdException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    @Override
+    public void notifyUpdate(Collection<MovementCategory> categories) {
+        //nothing to do in case of update
+    }
+
+    @Override
+    public void notifyDelete(Collection<MovementCategory> category) {
+        category.stream().forEach(this::deleteExpenseTarget);
     }
 
     private void createNewExpenseTarget(MovementCategory category) throws IncorrectUserIdException {

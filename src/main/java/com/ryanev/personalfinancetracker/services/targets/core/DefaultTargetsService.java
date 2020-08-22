@@ -7,6 +7,7 @@ import com.ryanev.personalfinancetracker.exceptions.IncorrectTargetAmountExcepti
 import com.ryanev.personalfinancetracker.exceptions.IncorrectTargetIdException;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
 import com.ryanev.personalfinancetracker.services.*;
+import com.ryanev.personalfinancetracker.services.users.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
