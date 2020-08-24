@@ -52,12 +52,6 @@ public class PeriodOverviewController {
     private static final String controllerPath  = "overview";
     private static final String slash = "/";
 
-    private List<Pair<Integer,String>> buildMonthDropdown(){
-        return Arrays.stream(Month.values())
-                .map(month -> Pair.of(month.getValue(),month.getDisplayName(TextStyle.FULL_STANDALONE, Locale.ENGLISH)))
-                .collect(Collectors.toList());
-    }
-
     private String buildControllerBaseURL(long userId){
         return new StringBuilder(slash).append(userId).append(slash).append(controllerPath).toString();
     }
@@ -81,7 +75,21 @@ public class PeriodOverviewController {
         LocalDate startDate = LocalDate.of(year,month,1);
         LocalDate endDate = startDate.with(TemporalAdjusters.lastDayOfMonth());
 
-        String searchUri = buildControllerBaseURL(userId);
+
+        buildCurrentlyShownPeriodInModel(model,month,year);
+
+        buildSearchUriLinkInModel(userId,model);
+
+        buildListOfYearsInModel(userId,today,model);
+
+        buildMonthDropdownInModel(model);
+
+        buildMovementsOverviewInModel(userId,model,startDate,endDate);
+
+        return "overview_period/overview";
+    }
+
+    private void buildMovementsOverviewInModel(Long userId,Model model, LocalDate startDate, LocalDate endDate) throws IncorrectUserIdException {
 
         List<Movement> movementList = movementsService.getMovementsForUserAndPeriod(userId, startDate,endDate);
         List<Movement> incomeList = movementList.stream().filter(f -> f.getAmount()>0).collect(Collectors.toList());
@@ -98,38 +106,46 @@ public class PeriodOverviewController {
         Double expenseTotal = expenseReportList.stream().mapToDouble(ReportLineWithTargetDTO::getAmount).sum();
 
 
-        List<Pair<Integer,String>> listOfMonths = buildMonthDropdown();
-
-        UserCacheData userCache = userService.getUserCache(userId);
-        List<Integer> listOfYears = buildListOfYears(today, userCache);
-
         Double savingsTarget = targetSavingsService.getTargetSavingsAmount(userId,startDate);
 
-        model.addAttribute("searchUri",searchUri);
-        model.addAttribute("month",Month.of(month).getDisplayName(TextStyle.FULL_STANDALONE, Locale.ENGLISH));
-        model.addAttribute("year",year);
         model.addAttribute("incomes",incomeReportList);
         model.addAttribute("expenses",expenseReportList);
         model.addAttribute("incomeTotal",incomeTotal);
         model.addAttribute("expenseTotal",expenseTotal);
         model.addAttribute("totalSaved",incomeTotal-expenseTotal);
-        model.addAttribute("listOfMonths",listOfMonths);
-        model.addAttribute("listOfYears",listOfYears);
         model.addAttribute("savingsTarget",savingsTarget);
-
-        return "overview_period/overview";
     }
 
-    private List<Integer> buildListOfYears(LocalDate today, UserCacheData userCache) {
+    private void buildMonthDropdownInModel(Model model){
+        List<Pair<Integer,String>> listOfMonths = Arrays.stream(Month.values())
+                .map(month -> Pair.of(month.getValue(),month.getDisplayName(TextStyle.FULL_STANDALONE, Locale.ENGLISH)))
+                .collect(Collectors.toList());
+        model.addAttribute("listOfMonths",listOfMonths);
+
+    }
+
+    private void buildListOfYearsInModel(Long userId, LocalDate date, Model model) throws IncorrectUserIdException {
+        UserCacheData userCache = userService.getUserCache(userId);
         List<Integer> listOfYears;
+
         if(userCache != null && userCache.getMinMovementDate() !=null && userCache.getMaxMovementDate() != null){
             listOfYears = IntStream.range(userCache.getMinMovementDate().getYear(),userCache.getMaxMovementDate().getYear()+1)
                     .boxed().collect(Collectors.toList());
         }
         else {
-            listOfYears = List.of(today.getYear());
+            listOfYears = List.of(date.getYear());
         }
-        return listOfYears;
+
+        model.addAttribute("listOfYears",listOfYears);
+    }
+
+    private void buildCurrentlyShownPeriodInModel(Model model,Integer month,Integer year){
+        model.addAttribute("month",Month.of(month).getDisplayName(TextStyle.FULL_STANDALONE, Locale.ENGLISH));
+        model.addAttribute("year",year);
+    }
+
+    private void buildSearchUriLinkInModel(Long userId, Model model){
+        model.addAttribute("searchUri",buildControllerBaseURL(userId));
     }
 
 
