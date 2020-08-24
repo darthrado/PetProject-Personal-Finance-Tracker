@@ -1,9 +1,7 @@
 package com.ryanev.personalfinancetracker.services.categories;
 
 import com.ryanev.personalfinancetracker.data.repo.categories.CategoriesRepository;
-import com.ryanev.personalfinancetracker.data.repo.movements.MovementsRepository;
 import com.ryanev.personalfinancetracker.data.repo.users.UserRepository;
-import com.ryanev.personalfinancetracker.data.entities.Movement;
 import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectCategoryIdException;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
@@ -25,8 +23,6 @@ public class DefaultCategoriesService implements CategoriesService {
     private CategoriesRepository categoriesRepository;
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private MovementsRepository movementsRepository;
     @Autowired
     private CategoryChangeNotifier categoryChangeNotifier;
 
@@ -134,13 +130,6 @@ public class DefaultCategoriesService implements CategoriesService {
         }catch (NoSuchElementException e){
             throw new IncorrectCategoryIdException();
         }
-
-
-        List<Movement> movementsToUpdate = movementsRepository.findAllByCategoryId(categoryId);
-        MovementCategory newCategoryForMovements = categoriesRepository.findById(categoryToDelete.getFallbackCategoryId()).orElseThrow();
-
-        movementsToUpdate.forEach(movement -> movement.setCategory(newCategoryForMovements));
-        movementsRepository.saveAll(movementsToUpdate);
 
         categoryChangeNotifier.notifyAllObservers(categoryToDelete, CrudChangeNotifier.NewState.DELETE);
 
