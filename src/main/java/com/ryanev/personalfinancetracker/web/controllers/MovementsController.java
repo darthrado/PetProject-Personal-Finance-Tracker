@@ -1,5 +1,6 @@
 package com.ryanev.personalfinancetracker.web.controllers;
 
+import com.ryanev.personalfinancetracker.services.dto.categories.CategoryDTO;
 import com.ryanev.personalfinancetracker.web.dto.movements.MovementFormDTO;
 import com.ryanev.personalfinancetracker.web.dto.movements.MovementViewDTO;
 import com.ryanev.personalfinancetracker.web.dto.movements.implementations.DefaultMovementFormDTO;
@@ -85,7 +86,7 @@ public class MovementsController {
             throw new IncorrectUserIdException();
         }
 
-        List<MovementCategory> categories = categoriesService.getActiveCategoriesForUser(userId);
+        List<CategoryDTO> categories = categoriesService.getActiveCategoriesForUser(userId);
 
         model = loadMovementFormModel(model,userId,"New",new Movement(),categories);
 
@@ -110,7 +111,7 @@ public class MovementsController {
             throw new IncorrectMovementIdException();
         }
 
-        List<MovementCategory> categories = categoriesService.getActiveCategoriesForUser(userId);
+        List<CategoryDTO> categories = categoriesService.getActiveCategoriesForUser(userId);
 
         model = loadMovementFormModel(model,userId,"Update",movementForEdit,categories);
 
@@ -134,14 +135,14 @@ public class MovementsController {
             throw new IncorrectMovementIdException();
         }
 
-        List<MovementCategory> categories = categoriesService.getActiveCategoriesForUser(userId);
+        List<CategoryDTO> categories = categoriesService.getActiveCategoriesForUser(userId);
 
         model = loadMovementFormModel(model,userId,"Delete",movementForDelete,categories);
 
         return "movements/movement-form";
     }
 
-    private Model loadMovementFormModel(Model model, Long userId, String action, Movement movement, List<MovementCategory> categories){
+    private Model loadMovementFormModel(Model model, Long userId, String action, Movement movement, List<CategoryDTO> categories){
 
         String baseUrl = buildControllerBaseURL(userId);
         String okButtonUrl;
@@ -199,7 +200,7 @@ public class MovementsController {
         newMovement.setUser(userService.getUserById(userId));
 
         try {
-            newMovement.setCategory(categoriesService.getCategoryById(newMovementDTO.getCategoryId()));
+//            newMovement.setCategory(categoriesService.getCategoryById(newMovementDTO.getCategoryId()));
         }catch (NoSuchElementException e){
             throw new IncorrectCategoryIdException();
         }

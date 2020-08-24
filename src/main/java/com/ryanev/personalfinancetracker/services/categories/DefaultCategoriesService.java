@@ -9,6 +9,7 @@ import com.ryanev.personalfinancetracker.exceptions.IncorrectCategoryIdException
 import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
 import com.ryanev.personalfinancetracker.exceptions.InvalidCategoryException;
 import com.ryanev.personalfinancetracker.services.crud_observer.CrudChangeNotifier;
+import com.ryanev.personalfinancetracker.services.dto.categories.CategoryDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -31,15 +32,44 @@ public class DefaultCategoriesService implements CategoriesService {
 
     private final List<String> defaultCategoryNames = List.of("Income(DEFAULT)","Other Expenses(DEFAULT)");
 
-    private void validateCategory(MovementCategory categoryForValidation) throws InvalidCategoryException {
+    private CategoryDTO mapCategoryToDTO(MovementCategory category){
+        CategoryDTO newDTO = new CategoryDTO();
+        newDTO.setId(category.getId());
+        newDTO.setName(category.getName());
+        newDTO.setDescription(category.getDescription());
+        newDTO.setFlagActive(category.getFlagActive());
+        newDTO.setUserId(category.getUser().getId());
+        newDTO.setFallbackCategoryId(category.getFallbackCategoryId());
+        return newDTO;
+    }
+    private MovementCategory mapDtoToCategory(CategoryDTO dto){
+        MovementCategory categoryEntity;
+
+        if(dto.getId()!=null){
+            categoryEntity = categoriesRepository.findById(dto.getId()).orElseThrow();
+        }
+        else {
+            categoryEntity = new MovementCategory();
+        }
+
+        categoryEntity.setName(dto.getName());
+        categoryEntity.setDescription(dto.getDescription());
+        categoryEntity.setFlagActive(dto.getFlagActive());
+        categoryEntity.setFallbackCategoryId(dto.getFallbackCategoryId());
+        categoryEntity.setUser(userRepository.findById(dto.getUserId()).orElseThrow());
+
+        return categoryEntity;
+    }
+
+    private void validateCategory(CategoryDTO categoryForValidation) throws InvalidCategoryException {
 
         if(categoryForValidation == null){
             throw new InvalidCategoryException("Category cannot be null");
         }
-        if (categoryForValidation.getUser() == null){
+        if (categoryForValidation.getUserId() == null){
             throw new InvalidCategoryException("User cannot be null");
         }
-        if (!userRepository.existsById(categoryForValidation.getUser().getId())){
+        if (!userRepository.existsById(categoryForValidation.getUserId())){
             throw new InvalidCategoryException("User not found");
         }
         if(categoryForValidation.getName() == null || categoryForValidation.getName().isBlank()){
@@ -48,29 +78,35 @@ public class DefaultCategoriesService implements CategoriesService {
     }
 
     @Override
-    public List<MovementCategory> getCategoriesForUser(Long userId) {
-        return categoriesRepository.findAllByUserId(userId);
+    public List<CategoryDTO> getCategoriesForUser(Long userId) {
+        return categoriesRepository
+                .findAllByUserId(userId)
+                .stream()
+                .map(this::mapCategoryToDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public MovementCategory getCategoryById(Long categoryId) throws NoSuchElementException {
-        return categoriesRepository.findById(categoryId).orElseThrow();
+    public CategoryDTO getCategoryById(Long categoryId) throws NoSuchElementException {
+        MovementCategory category = categoriesRepository.findById(categoryId).orElseThrow();
+        return mapCategoryToDTO(category);
     }
 
     @Override
-    public MovementCategory saveCategory(MovementCategory category) throws InvalidCategoryException {
+    public CategoryDTO saveCategory(CategoryDTO category) throws InvalidCategoryException {
 
         Boolean flagCategoryExists=false;
         if(category!=null){
             flagCategoryExists = category.getId()==null?false:true;
         }
 
-
-        MovementCategory savedCategory;
         validateCategory(category);
 
+
+        MovementCategory savedCategory = mapDtoToCategory(category);
         try {
-            savedCategory = categoriesRepository.save(category);
+            savedCategory = categoriesRepository.save(savedCategory);
+            category.setId(savedCategory.getId());
         }
         catch (DataIntegrityViolationException e){
             //TODO handle the violated constraint specifically; rethrow the exception otherwise
@@ -84,7 +120,7 @@ public class DefaultCategoriesService implements CategoriesService {
             categoryChangeNotifier.notifyAllObservers(savedCategory, CrudChangeNotifier.NewState.UPDATE);
         }
 
-        return savedCategory;
+        return category;
     }
 
     @Override
@@ -94,14 +130,14 @@ public class DefaultCategoriesService implements CategoriesService {
         MovementCategory categoryToDelete;
 
         try {
-            categoryToDelete = getCategoryById(categoryId);
+            categoryToDelete = categoriesRepository.findById(categoryId).orElseThrow();
         }catch (NoSuchElementException e){
             throw new IncorrectCategoryIdException();
         }
 
 
         List<Movement> movementsToUpdate = movementsRepository.findAllByCategoryId(categoryId);
-        MovementCategory newCategoryForMovements = getCategoryById(categoryToDelete.getFallbackCategoryId());
+        MovementCategory newCategoryForMovements = categoriesRepository.findById(categoryToDelete.getFallbackCategoryId()).orElseThrow();
 
         movementsToUpdate.forEach(movement -> movement.setCategory(newCategoryForMovements));
         movementsRepository.saveAll(movementsToUpdate);
@@ -112,8 +148,8 @@ public class DefaultCategoriesService implements CategoriesService {
     }
 
     @Override
-    public List<MovementCategory> getAll() {
-        return categoriesRepository.findAll();
+    public List<CategoryDTO> getAll() {
+        return categoriesRepository.findAll().stream().map(this::mapCategoryToDTO).collect(Collectors.toList());
     }
 
     @Override
@@ -122,7 +158,7 @@ public class DefaultCategoriesService implements CategoriesService {
         MovementCategory categoryToModify;
 
         try {
-            categoryToModify = getCategoryById(categoryId);
+            categoryToModify =  categoriesRepository.findById(categoryId).orElseThrow();
         }catch (NoSuchElementException e){
             throw new IncorrectCategoryIdException();
         }
@@ -133,15 +169,21 @@ public class DefaultCategoriesService implements CategoriesService {
     }
 
     @Override
-    public List<MovementCategory> getActiveCategoriesForUser(Long userId) {
-        return categoriesRepository.findAllByUserId(userId).stream().filter(MovementCategory::getFlagActive).collect(Collectors.toList());
+    public List<CategoryDTO> getActiveCategoriesForUser(Long userId) {
+        return categoriesRepository
+                .findAllByUserId(userId)
+                .stream()
+                .filter(MovementCategory::getFlagActive)
+                .map(this::mapCategoryToDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<MovementCategory> getDefaultCategoriesForUser(Long userId) {
+    public List<CategoryDTO> getDefaultCategoriesForUser(Long userId) {
         return categoriesRepository.findAllByUserId(userId)
                 .stream()
                 .filter(category -> defaultCategoryNames.contains(category.getName()))
+                .map(this::mapCategoryToDTO)
                 .collect(Collectors.toList());
     }
 
@@ -161,7 +203,7 @@ public class DefaultCategoriesService implements CategoriesService {
 
         List<String> presentDefaultCategories = getDefaultCategoriesForUser(userId)
                 .stream()
-                .map(MovementCategory::getName)
+                .map(CategoryDTO::getName)
                 .collect(Collectors.toList());
 
         List<MovementCategory> toInsert;

@@ -1,11 +1,8 @@
 package com.ryanev.personalfinancetracker.web.controllers;
 
+import com.ryanev.personalfinancetracker.services.dto.categories.CategoryDTO;
 import com.ryanev.personalfinancetracker.web.dto.categories.CategoryFormDTO;
 import com.ryanev.personalfinancetracker.web.dto.categories.CategoryViewDTO;
-import com.ryanev.personalfinancetracker.web.dto.categories.implementations.CategoryVeiwDtoConcrete;
-import com.ryanev.personalfinancetracker.web.dto.categories.implementations.DefaultCategoryFormDTO;
-import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
-import com.ryanev.personalfinancetracker.data.entities.User;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectCategoryIdException;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
 import com.ryanev.personalfinancetracker.exceptions.InvalidCategoryException;
@@ -15,12 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
-@SuppressWarnings({"ALL", "SameReturnValue"})
 @Controller
 @RequestMapping("/{userId}/categories")
 public class CategoriesController {
@@ -34,34 +31,64 @@ public class CategoriesController {
     private static final String controllerPath  = "categories";
     private static final String slash = "/";
 
+    private final String ENABLE = "Enable";
+    private final String DISABLE = "Disable";
+    private final String ACTIVE = "Active";
+    private final String DISABLED = "Disabled";
+
 
     private String buildControllerBaseURL(long userId){
         return new StringBuilder(slash).append(userId).append(slash).append(controllerPath).toString();
     }
 
-    private boolean checkIfUserExists(Long userId){
-        try {
-            User user = userService.getUserById(userId);
-            return true;
-        }
-        catch (NoSuchElementException e){
-            return false;
-        }
+    private CategoryViewDTO mapCategoryToViewDTO(CategoryDTO categoryDTO){
+
+        String baseUri = buildControllerBaseURL(categoryDTO.getUserId());
+
+        String enableDisableLink = UriComponentsBuilder.fromUriString(baseUri.concat("/change_status"))
+                .queryParam("id",categoryDTO.getId())
+                .queryParam("enable",!categoryDTO.getFlagActive())
+                .build()
+                .toUriString();
+
+        String updateLink = UriComponentsBuilder.fromUriString(baseUri.concat("/update"))
+                .queryParam("id",categoryDTO.getId()).build().toUriString();
+
+        String deleteLink = UriComponentsBuilder.fromUriString(baseUri.concat("/delete"))
+                .queryParam("id",categoryDTO.getId()).build().toUriString();
+
+        CategoryViewDTO newDTO = new CategoryViewDTO();
+        newDTO.setName(categoryDTO.getName());
+        newDTO.setActive(categoryDTO.getFlagActive()?ACTIVE:DISABLED);
+        newDTO.setDeleteLink(deleteLink);
+        newDTO.setUpdateLink(updateLink);
+        newDTO.setEnableDisableLink(enableDisableLink);
+        newDTO.setEnableDisableText(categoryDTO.getFlagActive()?DISABLE:ENABLE);
+        newDTO.setFlagDefault(categoriesService.isCategoryDefault(categoryDTO.getName()));
+
+        return newDTO;
+    }
+    private CategoryFormDTO mapCategoryToFormDTO(CategoryDTO categoryDTO){
+        CategoryFormDTO newDTO = new CategoryFormDTO();
+        newDTO.setName(categoryDTO.getName());
+        newDTO.setId(categoryDTO.getId());
+        newDTO.setDescription(categoryDTO.getDescription());
+        newDTO.setFallbackCategoryId(categoryDTO.getFallbackCategoryId());
+
+        return newDTO;
     }
 
     @GetMapping
     public String categoriesLandingPage(Model model,
                                         @PathVariable("userId") Long userId) throws IncorrectUserIdException {
 
-        if(!checkIfUserExists(userId)){
+        if(!userService.existsById(userId)){
             throw new IncorrectUserIdException();
         }
 
         List<CategoryViewDTO> categoryViewDTOList = categoriesService.getCategoriesForUser(userId)
                 .stream()
-                .map(category -> new CategoryVeiwDtoConcrete(category,
-                        categoriesService.isCategoryDefault(category.getName()),
-                        buildControllerBaseURL(userId)))
+                .map(this::mapCategoryToViewDTO)
                 .collect(Collectors.toList());
 
         model.addAttribute("categoriesList",categoryViewDTOList);
@@ -75,14 +102,14 @@ public class CategoriesController {
     public String newCategoryPage(Model model,
                                   @PathVariable("userId") Long userId) throws IncorrectUserIdException {
 
-        if(!checkIfUserExists(userId)){
+        if(!userService.existsById(userId)){
             throw new IncorrectUserIdException();
         }
 
-        MovementCategory movementCategory = new MovementCategory();
-        List<MovementCategory> defaultCategories = categoriesService.getDefaultCategoriesForUser(userId);
+        CategoryDTO movementCategory = new CategoryDTO();
+        List<CategoryDTO> defaultCategories = categoriesService.getDefaultCategoriesForUser(userId);
 
-        model = loadCategoryFormModel(model,userId,"New",movementCategory,defaultCategories);
+        loadCategoryFormModel(model,userId,"New",movementCategory,defaultCategories);
 
         return "categories/categories-form";
     }
@@ -92,50 +119,49 @@ public class CategoriesController {
                                      @PathVariable("userId") Long userId,
                                      @RequestParam("id") Long categoryId) throws IncorrectUserIdException, IncorrectCategoryIdException {
 
-        if(!checkIfUserExists(userId)){
+        if(!userService.existsById(userId)){
             throw new IncorrectUserIdException();
         }
 
-        MovementCategory movementCategory;
+        CategoryDTO movementCategory;
         try {
             movementCategory = categoriesService.getCategoryById(categoryId);
         }
         catch (NoSuchElementException e){
             throw new IncorrectCategoryIdException();
         }
-        List<MovementCategory> defaultCategories = categoriesService.getDefaultCategoriesForUser(userId);
+        List<CategoryDTO> defaultCategories = categoriesService.getDefaultCategoriesForUser(userId);
 
-        model = loadCategoryFormModel(model,userId,"Update",movementCategory,defaultCategories);
+        loadCategoryFormModel(model,userId,"Update",movementCategory,defaultCategories);
 
         return "categories/categories-form";
     }
 
-    @SuppressWarnings("SameReturnValue")
     @GetMapping("/delete")
     public String deleteCategoryPage(Model model,
                                      @PathVariable("userId") Long userId,
                                      @RequestParam("id") Long categoryId) throws IncorrectUserIdException {
 
-        if(!checkIfUserExists(userId)){
+        if(!userService.existsById(userId)){
             throw new IncorrectUserIdException();
         }
 
-        MovementCategory movementCategory = categoriesService.getCategoryById(categoryId);
-        List<MovementCategory> defaultCategories = categoriesService.getDefaultCategoriesForUser(userId);
-        model = loadCategoryFormModel(model,userId,"Delete",movementCategory,defaultCategories);
+        CategoryDTO movementCategory = categoriesService.getCategoryById(categoryId);
+        List<CategoryDTO> defaultCategories = categoriesService.getDefaultCategoriesForUser(userId);
+
+        loadCategoryFormModel(model,userId,"Delete",movementCategory,defaultCategories);
 
         return "categories/categories-form";
     }
 
-    private Model loadCategoryFormModel(Model model,
+    private void loadCategoryFormModel(Model model,
                                         Long userId,
                                         String action,
-                                        MovementCategory movementCategory,
-                                        List<MovementCategory> defaultCategories){
+                                        CategoryDTO movementCategory,
+                                        List<CategoryDTO> defaultCategories){
 
         String baseUrl = buildControllerBaseURL(userId);
         String okButtonUrl;
-        CategoryFormDTO categoryFormEntry = new DefaultCategoryFormDTO(movementCategory);
 
         boolean disableFormFields;
         boolean flagInactiveCategory = false;
@@ -155,6 +181,8 @@ public class CategoriesController {
 
         }
 
+        CategoryFormDTO categoryFormDTO = mapCategoryToFormDTO(movementCategory);
+
 
         model.addAttribute("fallbackCategories",defaultCategories);
         model.addAttribute("flagInactiveCategory",flagInactiveCategory);
@@ -165,11 +193,8 @@ public class CategoriesController {
 
         model.addAttribute("action",action);
         model.addAttribute("baseUrl",baseUrl);
-        model.addAttribute("category",categoryFormEntry);
+        model.addAttribute("category",categoryFormDTO);
         model.addAttribute("uid",userId);
-
-        return model;
-
     }
 
     @PostMapping("/save")
@@ -177,26 +202,25 @@ public class CategoriesController {
                                    @PathVariable("userId") Long userId,
                                    CategoryFormDTO categoryFormDTO) throws InvalidCategoryException, IncorrectUserIdException {
 
-        if(!checkIfUserExists(userId)){
+        if(!userService.existsById(userId)){
             throw new IncorrectUserIdException();
         }
 
-
-        MovementCategory movementCategory;
-
-        if (categoryFormDTO.getId() == null){
-            movementCategory = new MovementCategory();
-            movementCategory.setFlagActive(true);
+        CategoryDTO serviceDTO;
+        if(categoryFormDTO.getId()!=null){
+            serviceDTO = categoriesService.getCategoryById(categoryFormDTO.getId());
         }
         else {
-            movementCategory = categoriesService.getCategoryById(categoryFormDTO.getId());
+            serviceDTO = new CategoryDTO();
+            serviceDTO.setUserId(userId);
+            serviceDTO.setFlagActive(true);
         }
 
-        movementCategory.setName(categoryFormDTO.getName());
-        movementCategory.setDescription(categoryFormDTO.getDescription());
-        movementCategory.setUser(userService.getUserById(userId));
-        movementCategory.setFallbackCategoryId(categoryFormDTO.getFallbackCategoryId());
-        movementCategory = categoriesService.saveCategory(movementCategory);
+        serviceDTO.setName(categoryFormDTO.getName());
+        serviceDTO.setDescription(categoryFormDTO.getDescription());
+        serviceDTO.setFallbackCategoryId(categoryFormDTO.getFallbackCategoryId());
+
+        categoriesService.saveCategory(serviceDTO);
 
         return "redirect:"+buildControllerBaseURL(userId);
     }
@@ -205,7 +229,7 @@ public class CategoriesController {
     public String confirmDeleteOfCategory(Model model,
                                           @PathVariable("userId") Long userId,
                                           CategoryFormDTO categoryFormDTO) throws IncorrectUserIdException, IncorrectCategoryIdException {
-        if(!checkIfUserExists(userId)){
+        if(!userService.existsById(userId)){
             throw new IncorrectUserIdException();
         }
 

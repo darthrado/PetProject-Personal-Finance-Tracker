@@ -1,16 +1,12 @@
-package com.ryanev.personalfinancetracker.web.dto.categories;
+package com.ryanev.personalfinancetracker.services.dto.categories;
 
-import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
-
-public class CategoryFormDTO{
-
+public class CategoryDTO {
     Long id;
     String name;
     String description;
+    Boolean flagActive;
+    Long userId;
     Long fallbackCategoryId;
-
-    public CategoryFormDTO() {
-    }
 
     public Long getId() {
         return id;
@@ -34,6 +30,22 @@ public class CategoryFormDTO{
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Boolean getFlagActive() {
+        return flagActive;
+    }
+
+    public void setFlagActive(Boolean flagActive) {
+        this.flagActive = flagActive;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public Long getFallbackCategoryId() {
