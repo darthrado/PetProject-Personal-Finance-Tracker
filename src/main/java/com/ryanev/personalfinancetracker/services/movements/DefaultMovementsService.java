@@ -1,9 +1,10 @@
-package com.ryanev.personalfinancetracker.services.implementation;
+package com.ryanev.personalfinancetracker.services.movements;
 import com.ryanev.personalfinancetracker.data.repo.movements.MovementsRepository;
 import com.ryanev.personalfinancetracker.data.entities.Movement;
 import com.ryanev.personalfinancetracker.exceptions.InvalidMovementException;
 import com.ryanev.personalfinancetracker.services.categories.CategoriesService;
-import com.ryanev.personalfinancetracker.services.MovementsService;
+import com.ryanev.personalfinancetracker.services.dto.movements.MovementDTO;
+import com.ryanev.personalfinancetracker.services.movements.MovementsService;
 import com.ryanev.personalfinancetracker.services.users.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 public class DefaultMovementsService implements MovementsService {
@@ -67,10 +69,7 @@ public class DefaultMovementsService implements MovementsService {
         return movementsRepository.findById(movementId).orElseThrow();
     }
 
-    @Override
-    public void deleteMovement(Movement movement) {
-        movementsRepository.delete(movement);
-    }
+
     @Override
     public void deleteMovementById(Long id) {
 
@@ -85,7 +84,23 @@ public class DefaultMovementsService implements MovementsService {
     }
 
     @Override
-    public List<Movement> getMovementsForUserAndPeriod(Long userId, LocalDate startDate, LocalDate endDate) {
-        return movementsRepository.findAllByUserIdAndPeriod(userId,startDate,endDate);
+    public List<MovementDTO> getMovementsForUserAndPeriod(Long userId, LocalDate startDate, LocalDate endDate) {
+        return movementsRepository.findAllByUserIdAndPeriod(userId,startDate,endDate)
+                .stream()
+                .map(this::mapMovementToDTO)
+                .collect(Collectors.toList());
+
     }
+
+    private MovementDTO mapMovementToDTO(Movement movement){
+        MovementDTO newDTO = new MovementDTO();
+        newDTO.setId(movement.getId());
+        newDTO.setAmount(movement.getAmount());
+        newDTO.setDate(movement.getValueDate());
+        newDTO.setName(movement.getName());
+        newDTO.setCategory(movement.getCategory().getName());
+
+        return newDTO;
+    }
+
 }

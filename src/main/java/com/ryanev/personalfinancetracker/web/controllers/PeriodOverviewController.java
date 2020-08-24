@@ -1,16 +1,16 @@
 package com.ryanev.personalfinancetracker.web.controllers;
 
+import com.ryanev.personalfinancetracker.services.dto.movements.MovementDTO;
 import com.ryanev.personalfinancetracker.services.dto.targets.TargetExpensesAndAmountDTO;
+import com.ryanev.personalfinancetracker.services.dto.users.UserCacheDTO;
 import com.ryanev.personalfinancetracker.services.targets.expences.TargetExpensesService;
 import com.ryanev.personalfinancetracker.services.targets.savings.TargetSavingsService;
 import com.ryanev.personalfinancetracker.web.dto.overview.ReportLineDTO;
 import com.ryanev.personalfinancetracker.web.dto.overview.ReportLineWithTargetDTO;
 import com.ryanev.personalfinancetracker.web.dto.overview.implementations.ReportLinesCreator;
-import com.ryanev.personalfinancetracker.data.entities.Movement;
-import com.ryanev.personalfinancetracker.data.entities.UserCacheData;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
-import com.ryanev.personalfinancetracker.services.DateProvider;
-import com.ryanev.personalfinancetracker.services.MovementsService;
+import com.ryanev.personalfinancetracker.services.util.DateProvider;
+import com.ryanev.personalfinancetracker.services.movements.MovementsService;
 import com.ryanev.personalfinancetracker.services.users.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
@@ -91,9 +91,9 @@ public class PeriodOverviewController {
 
     private void buildMovementsOverviewInModel(Long userId,Model model, LocalDate startDate, LocalDate endDate) throws IncorrectUserIdException {
 
-        List<Movement> movementList = movementsService.getMovementsForUserAndPeriod(userId, startDate,endDate);
-        List<Movement> incomeList = movementList.stream().filter(f -> f.getAmount()>0).collect(Collectors.toList());
-        List<Movement> expenseList = movementList.stream().filter(f -> f.getAmount()<0).collect(Collectors.toList());
+        List<MovementDTO> movementList = movementsService.getMovementsForUserAndPeriod(userId, startDate,endDate);
+        List<MovementDTO> incomeList = movementList.stream().filter(f -> f.getAmount()>0).collect(Collectors.toList());
+        List<MovementDTO> expenseList = movementList.stream().filter(f -> f.getAmount()<0).collect(Collectors.toList());
 
         List<TargetExpensesAndAmountDTO> expenseTargets = targetExpensesService.getExpenseTargetNameAndAmount(userId,startDate);
 
@@ -125,7 +125,7 @@ public class PeriodOverviewController {
     }
 
     private void buildListOfYearsInModel(Long userId, LocalDate date, Model model) throws IncorrectUserIdException {
-        UserCacheData userCache = userService.getUserCache(userId);
+        UserCacheDTO userCache = userService.getUserCache(userId);
         List<Integer> listOfYears;
 
         if(userCache != null && userCache.getMinMovementDate() !=null && userCache.getMaxMovementDate() != null){

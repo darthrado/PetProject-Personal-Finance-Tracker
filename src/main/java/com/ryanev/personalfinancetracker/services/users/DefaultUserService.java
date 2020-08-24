@@ -9,6 +9,7 @@ import com.ryanev.personalfinancetracker.data.entities.UserCacheData;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
 import com.ryanev.personalfinancetracker.exceptions.UserAlreadyExistsException;
 import com.ryanev.personalfinancetracker.services.crud_observer.CrudChangeNotifier;
+import com.ryanev.personalfinancetracker.services.dto.users.UserCacheDTO;
 import com.ryanev.personalfinancetracker.web.dto.security.UserAccountDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,21 +45,32 @@ public class DefaultUserService implements UserService {
     }
 
     @Override
-    public UserCacheData getUserCache(Long userId) throws IncorrectUserIdException {
+    public UserCacheDTO getUserCache(Long userId) throws IncorrectUserIdException {
+        UserCacheData userCacheData;
         try {
-            return userCacheRepository.findById(userId).orElseThrow();
+            userCacheData=userCacheRepository.findById(userId).orElseThrow();
         }catch (NoSuchElementException e){
             if (existsById(userId)){
-                UserCacheData newCache = new UserCacheData();
-                newCache.setUser(getUserById(userId));
-                return newCache;
+                userCacheData = new UserCacheData();
+                userCacheData.setUser(getUserById(userId));
             }
             else {
                 throw new IncorrectUserIdException();
             }
         }
 
+        return mapUserCacheToDTO(userCacheData);
+
     }
+
+    private UserCacheDTO mapUserCacheToDTO(UserCacheData userCacheData){
+        UserCacheDTO newDTO = new UserCacheDTO();
+        newDTO.setUserId(userCacheData.getUserId());
+        newDTO.setMinMovementDate(userCacheData.getMinMovementDate());
+        newDTO.setMaxMovementDate(userCacheData.getMaxMovementDate());
+
+        return newDTO;
+    };
 
     @Override
     public void updateCacheWithMovementDate(Long userId, LocalDate movementDate) {

@@ -1,5 +1,6 @@
 package com.ryanev.personalfinancetracker.web.dto.overview.implementations;
 
+import com.ryanev.personalfinancetracker.services.dto.movements.MovementDTO;
 import com.ryanev.personalfinancetracker.services.dto.targets.TargetExpensesAndAmountDTO;
 import com.ryanev.personalfinancetracker.web.dto.overview.ReportLineDTO;
 import com.ryanev.personalfinancetracker.data.entities.Movement;
@@ -11,21 +12,21 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ReportLinesCreator {
-    public List<ReportLineDTO> createReportFromListOfMovements(List<Movement> movements){
-        Map<MovementCategory,Double> resultMap = movements.stream()
-                .collect(Collectors.groupingBy(Movement::getCategory,Collectors.summingDouble(Movement::getAmount)));
+    public List<ReportLineDTO> createReportFromListOfMovements(List<MovementDTO> movements){
+        Map<String ,Double> resultMap = movements.stream()
+                .collect(Collectors.groupingBy(MovementDTO::getCategory,Collectors.summingDouble(MovementDTO::getAmount)));
 
         return resultMap.keySet()
                 .stream()
-                .map(f -> new ReportLineImpl(f.getName(),resultMap.get(f),true))
+                .map(f -> new ReportLineImpl(f,resultMap.get(f),true))
                 .collect(Collectors.toList());
     }
 
-    public List<ReportLineWithTargetDTO> createReportFromListOfMovementsWithTargets(List<Movement> movements,
+    public List<ReportLineWithTargetDTO> createReportFromListOfMovementsWithTargets(List<MovementDTO> movements,
                                                                                     List<TargetExpensesAndAmountDTO> targets){
 
         Map<String,Double> categoryMovementSumMap = movements.stream()
-                .collect(Collectors.groupingBy(movement -> movement.getCategory().getName(),Collectors.summingDouble(Movement::getAmount)));
+                .collect(Collectors.groupingBy(MovementDTO::getCategory,Collectors.summingDouble(MovementDTO::getAmount)));
 
         Map<String,Double> categoryTargetMap = targets
                 .stream()

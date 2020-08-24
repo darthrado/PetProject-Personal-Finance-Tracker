@@ -1,6 +1,6 @@
-package com.ryanev.personalfinancetracker.services.implementation;
+package com.ryanev.personalfinancetracker.services.util;
 
-import com.ryanev.personalfinancetracker.services.DateProvider;
+import com.ryanev.personalfinancetracker.services.util.DateProvider;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;

@@ -1,9 +1,9 @@
 package com.ryanev.personalfinancetracker.services.users;
 
 import com.ryanev.personalfinancetracker.data.entities.User;
-import com.ryanev.personalfinancetracker.data.entities.UserCacheData;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
 import com.ryanev.personalfinancetracker.exceptions.UserAlreadyExistsException;
+import com.ryanev.personalfinancetracker.services.dto.users.UserCacheDTO;
 import com.ryanev.personalfinancetracker.web.dto.security.UserAccountDTO;
 
 import java.time.LocalDate;
@@ -14,7 +14,7 @@ public interface UserService {
     User getUserById(Long userId);
     User getUserByUsername(String username);
 
-    UserCacheData getUserCache(Long userId) throws IncorrectUserIdException;
+    UserCacheDTO getUserCache(Long userId) throws IncorrectUserIdException;
     void updateCacheWithMovementDate(Long userId, LocalDate movementDate);
 
     Boolean existsById(Long id);

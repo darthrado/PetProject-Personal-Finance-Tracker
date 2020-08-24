@@ -10,7 +10,7 @@ import com.ryanev.personalfinancetracker.data.repo.targets.TargetsRepository;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectTargetAmountException;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectTargetIdException;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
-import com.ryanev.personalfinancetracker.services.DateProvider;
+import com.ryanev.personalfinancetracker.services.util.DateProvider;
 import com.ryanev.personalfinancetracker.services.users.UserService;
 import com.ryanev.personalfinancetracker.services.targets.core.DefaultTargetsService;
 import com.ryanev.personalfinancetracker.services.targets.core.TargetsService;
