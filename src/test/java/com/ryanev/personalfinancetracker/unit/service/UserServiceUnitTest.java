@@ -3,7 +3,7 @@ package com.ryanev.personalfinancetracker.unit.service;
 import com.ryanev.personalfinancetracker.data.repo.users.UserRepository;
 import com.ryanev.personalfinancetracker.data.entities.User;
 import com.ryanev.personalfinancetracker.services.users.UserService;
-import com.ryanev.personalfinancetracker.services.users.DefaultUserService;
+import com.ryanev.personalfinancetracker.services.users.UserServiceImpl;
 import com.ryanev.personalfinancetracker.util.user.TestUserBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 public class UserServiceUnitTest {
 
     @InjectMocks
-    UserService userService = new DefaultUserService();
+    UserService userService = new UserServiceImpl();
 
     @Mock
     UserRepository userRepository;

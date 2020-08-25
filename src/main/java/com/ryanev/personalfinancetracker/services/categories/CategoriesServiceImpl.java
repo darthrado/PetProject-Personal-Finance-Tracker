@@ -18,7 +18,7 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
-public class DefaultCategoriesService implements CategoriesService {
+public class CategoriesServiceImpl implements CategoriesService {
     @Autowired
     private CategoriesRepository categoriesRepository;
     @Autowired

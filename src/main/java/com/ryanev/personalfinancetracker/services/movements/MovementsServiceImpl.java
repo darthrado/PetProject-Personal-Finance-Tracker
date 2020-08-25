@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class DefaultMovementsService implements MovementsService {
+public class MovementsServiceImpl implements MovementsService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
