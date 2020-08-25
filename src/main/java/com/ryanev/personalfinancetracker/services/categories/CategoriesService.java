@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 public interface CategoriesService {
-    List<CategoryDTO> getAll();
     List<CategoryDTO> getActiveCategoriesForUser(Long userId);
     CategoryDTO getCategoryById(Long categoryId) throws NoSuchElementException;
     CategoryDTO saveCategory(CategoryDTO category)  throws InvalidCategoryException;

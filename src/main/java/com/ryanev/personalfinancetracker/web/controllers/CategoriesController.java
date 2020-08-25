@@ -206,6 +206,14 @@ public class CategoriesController {
             throw new IncorrectUserIdException();
         }
 
+        CategoryDTO serviceDTO = mapFormDtoToCategory(userId, categoryFormDTO);
+
+        categoriesService.saveCategory(serviceDTO);
+
+        return "redirect:"+buildControllerBaseURL(userId);
+    }
+
+    private CategoryDTO mapFormDtoToCategory(@PathVariable("userId") Long userId, CategoryFormDTO categoryFormDTO) {
         CategoryDTO serviceDTO;
         if(categoryFormDTO.getId()!=null){
             serviceDTO = categoriesService.getCategoryById(categoryFormDTO.getId());
@@ -219,10 +227,7 @@ public class CategoriesController {
         serviceDTO.setName(categoryFormDTO.getName());
         serviceDTO.setDescription(categoryFormDTO.getDescription());
         serviceDTO.setFallbackCategoryId(categoryFormDTO.getFallbackCategoryId());
-
-        categoriesService.saveCategory(serviceDTO);
-
-        return "redirect:"+buildControllerBaseURL(userId);
+        return serviceDTO;
     }
 
     @PostMapping("/delete/confirm")

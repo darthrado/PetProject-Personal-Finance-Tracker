@@ -1,13 +1,9 @@
 package com.ryanev.personalfinancetracker.web.controllers;
 
 import com.ryanev.personalfinancetracker.services.dto.categories.CategoryDTO;
+import com.ryanev.personalfinancetracker.services.dto.movements.MovementDTO;
 import com.ryanev.personalfinancetracker.web.dto.movements.MovementFormDTO;
 import com.ryanev.personalfinancetracker.web.dto.movements.MovementViewDTO;
-import com.ryanev.personalfinancetracker.web.dto.movements.implementations.DefaultMovementFormDTO;
-import com.ryanev.personalfinancetracker.web.dto.movements.implementations.MovementViewDtoAdapter;
-import com.ryanev.personalfinancetracker.data.entities.Movement;
-import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
-import com.ryanev.personalfinancetracker.data.entities.User;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectCategoryIdException;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectMovementIdException;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
@@ -19,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.util.Comparator;
@@ -45,21 +42,63 @@ public class MovementsController {
         return new StringBuilder(slash).append(userId).append(slash).append(controllerPath).toString();
     }
 
-    private boolean checkIfUserExists(Long userId){
-        try {
-            User user = userService.getUserById(userId);
-            return true;
-        }
-        catch (NoSuchElementException e){
-            return false;
-        }
+    private MovementViewDTO mapMovementToViewDTO(MovementDTO movement){
+        MovementViewDTO newDTO = new MovementViewDTO();
+        newDTO.setName(movement.getName());
+        newDTO.setCategoryName(movement.getCategory());
+        newDTO.setValueDate(movement.getValueDate());
+        newDTO.setSignedAmount(movement.getAmount());
+
+        String baseUri = buildControllerBaseURL(movement.getUserId());
+        String updateLink = UriComponentsBuilder.fromUriString(baseUri.concat("/update"))
+                .queryParam("id",movement.getId()).build().toUriString();
+
+        String deleteLink = UriComponentsBuilder.fromUriString(baseUri.concat("/delete"))
+                .queryParam("id",movement.getId()).build().toUriString();
+
+        newDTO.setUpdateLink(updateLink);
+        newDTO.setDeleteLink(deleteLink);
+
+        return newDTO;
     }
+
+    private MovementFormDTO mapMovementToFormDTO(MovementDTO movement){
+        MovementFormDTO formDTO = new MovementFormDTO();
+        if (movement.getAmount() != null) {
+            formDTO.setUnsignedAmount(Math.abs(movement.getAmount()));
+            formDTO.setFlagAmountPositive(movement.getAmount() > 0);
+        }
+        formDTO.setId(movement.getId());
+        formDTO.setName(movement.getName());
+        formDTO.setValueDate(movement.getValueDate());
+        formDTO.setCategoryName(movement.getCategory());
+        return formDTO;
+    }
+
+    private MovementDTO mapDtoToMovement(Long userId, MovementFormDTO dto){
+        MovementDTO serviceDTO;
+        if(dto.getId()!=null){
+            serviceDTO = movementsService.getMovementById(dto.getId());
+        }
+        else {
+            serviceDTO = new MovementDTO();
+            serviceDTO.setUserId(userId);
+        }
+
+        serviceDTO.setName(dto.getName());
+        serviceDTO.setDescription(dto.getDescription());
+        serviceDTO.setCategory(dto.getCategoryName());
+        serviceDTO.setAmount( dto.getUnsignedAmount() * (dto.getFlagAmountPositive()?1:-1) );
+        serviceDTO.setValueDate(dto.getValueDate());
+        return serviceDTO;
+    }
+
 
     @GetMapping
     public String movementsLandingPage(Model model,
                                        @PathVariable("userId") Long userId) throws IncorrectUserIdException{
 
-        if(!checkIfUserExists(userId)){
+        if(!userService.existsById(userId)){
             throw new IncorrectUserIdException();
         }
 
@@ -67,8 +106,8 @@ public class MovementsController {
         //Todo understand Spring data specification interface https://spring.io/blog/2011/04/26/advanced-spring-data-jpa-specifications-and-querydsl/
         List<MovementViewDTO> movementsList = movementsService.getMovementsForUser(userId)
                 .stream()
-                .map(MovementViewDtoAdapter::new)
-                .sorted(Comparator.comparing(MovementViewDtoAdapter::getValueDate).reversed())
+                .map(this::mapMovementToViewDTO)
+                .sorted(Comparator.comparing(MovementViewDTO::getValueDate).reversed())
                 .collect(Collectors.toList());
 
         model.addAttribute("baseUrl", buildControllerBaseURL(userId));
@@ -82,13 +121,13 @@ public class MovementsController {
     public String newMovementPage(Model model,
                                   @PathVariable("userId") long userId) throws IncorrectUserIdException {
 
-        if(!checkIfUserExists(userId)){
+        if(!userService.existsById(userId)){
             throw new IncorrectUserIdException();
         }
 
         List<CategoryDTO> categories = categoriesService.getActiveCategoriesForUser(userId);
 
-        model = loadMovementFormModel(model,userId,"New",new Movement(),categories);
+        loadMovementFormModel(model,userId,"New",new MovementDTO(),categories);
 
 
         return "movements/movement-form";
@@ -99,11 +138,11 @@ public class MovementsController {
                                    @PathVariable("userId") Long userId,
                                    @RequestParam("id") Long movementId ) throws IncorrectUserIdException, IncorrectMovementIdException {
 
-        if(!checkIfUserExists(userId)){
+        if(!userService.existsById(userId)){
             throw new IncorrectUserIdException();
         }
 
-        Movement movementForEdit;
+        MovementDTO movementForEdit;
         try {
             movementForEdit = movementsService.getMovementById(movementId);
         }
@@ -113,7 +152,7 @@ public class MovementsController {
 
         List<CategoryDTO> categories = categoriesService.getActiveCategoriesForUser(userId);
 
-        model = loadMovementFormModel(model,userId,"Update",movementForEdit,categories);
+        loadMovementFormModel(model,userId,"Update",movementForEdit,categories);
 
         return "movements/movement-form";
     }
@@ -123,11 +162,11 @@ public class MovementsController {
                                      @PathVariable("userId") Long userId,
                                      @RequestParam("id") Long movementId ) throws IncorrectUserIdException, IncorrectMovementIdException {
 
-        if(!checkIfUserExists(userId)){
+        if(!userService.existsById(userId)){
             throw new IncorrectUserIdException();
         }
 
-        Movement movementForDelete;
+        MovementDTO movementForDelete;
         try {
             movementForDelete = movementsService.getMovementById(movementId);
         }
@@ -137,17 +176,17 @@ public class MovementsController {
 
         List<CategoryDTO> categories = categoriesService.getActiveCategoriesForUser(userId);
 
-        model = loadMovementFormModel(model,userId,"Delete",movementForDelete,categories);
+        loadMovementFormModel(model,userId,"Delete",movementForDelete,categories);
 
         return "movements/movement-form";
     }
 
-    private Model loadMovementFormModel(Model model, Long userId, String action, Movement movement, List<CategoryDTO> categories){
+    private Model loadMovementFormModel(Model model, Long userId, String action, MovementDTO movement, List<CategoryDTO> categories){
 
         String baseUrl = buildControllerBaseURL(userId);
         String okButtonUrl;
         String formMethod;
-        MovementFormDTO movementFormEntry = new DefaultMovementFormDTO(movement);
+        MovementFormDTO movementFormEntry = mapMovementToFormDTO(movement);
 
         boolean disableFormFields;
         if (action.equals("Delete")){
@@ -183,26 +222,8 @@ public class MovementsController {
                                 @ModelAttribute("movement")    MovementFormDTO newMovementDTO,
                                 @PathVariable("userId") Long userId) throws IncorrectUserIdException, InvalidMovementException, IncorrectCategoryIdException {
 
-        if(!checkIfUserExists(userId)){
+        if(!userService.existsById(userId)){
             throw new IncorrectUserIdException();
-        }
-
-        //TODO this probably belongs to a builder, or some mapper class
-        Movement newMovement;
-        if (newMovementDTO.getId() != null){
-            newMovement=movementsService.getMovementById(newMovementDTO.getId());
-        }else {
-            newMovement = new Movement();
-        }
-        newMovement.setName(newMovementDTO.getName());
-        newMovement.setDescription(newMovementDTO.getDescription());
-        newMovement.setValueDate(newMovementDTO.getValueDate());
-        newMovement.setUser(userService.getUserById(userId));
-
-        try {
-//            newMovement.setCategory(categoriesService.getCategoryById(newMovementDTO.getCategoryId()));
-        }catch (NoSuchElementException e){
-            throw new IncorrectCategoryIdException();
         }
 
 
@@ -211,9 +232,10 @@ public class MovementsController {
             throw new InvalidMovementException("Amount is null or Flag Amount is null");
         if(newMovementDTO.getUnsignedAmount() < 0)
             throw new InvalidMovementException("Amount can't be negative");
-        newMovement.setAmount( newMovementDTO.getUnsignedAmount() * (newMovementDTO.getFlagAmountPositive()?1:-1) );
 
-        movementsService.saveMovement(newMovement);
+        MovementDTO movement = mapDtoToMovement(userId,newMovementDTO);
+
+        movementsService.saveMovement(movement);
 
         return "redirect:"+buildControllerBaseURL(userId);
     }
@@ -222,7 +244,7 @@ public class MovementsController {
                                  MovementFormDTO movementToDelete,
                                  @PathVariable("userId") Long userId) throws IncorrectUserIdException {
 
-        if(!checkIfUserExists(userId)){
+        if(!userService.existsById(userId)){
             throw new IncorrectUserIdException();
         }
 

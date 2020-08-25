@@ -5,9 +5,11 @@ import java.time.LocalDate;
 public class MovementDTO {
     Long id;
     String name;
-    LocalDate date;
+    String description;
+    LocalDate valueDate;
     Double amount;
     String category;
+    Long userId;
 
     public Long getId() {
         return id;
@@ -25,12 +27,12 @@ public class MovementDTO {
         this.name = name;
     }
 
-    public LocalDate getDate() {
-        return date;
+    public LocalDate getValueDate() {
+        return valueDate;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
+    public void setValueDate(LocalDate valueDate) {
+        this.valueDate = valueDate;
     }
 
     public Double getAmount() {
@@ -47,5 +49,21 @@ public class MovementDTO {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

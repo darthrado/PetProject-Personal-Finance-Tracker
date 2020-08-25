@@ -1,42 +1,42 @@
 package com.ryanev.personalfinancetracker.services.movements;
+import com.ryanev.personalfinancetracker.data.repo.categories.CategoriesRepository;
 import com.ryanev.personalfinancetracker.data.repo.movements.MovementsRepository;
 import com.ryanev.personalfinancetracker.data.entities.Movement;
+import com.ryanev.personalfinancetracker.data.repo.users.UserRepository;
 import com.ryanev.personalfinancetracker.exceptions.InvalidMovementException;
-import com.ryanev.personalfinancetracker.services.categories.CategoriesService;
+import com.ryanev.personalfinancetracker.services.crud_observer.CrudChangeNotifier;
 import com.ryanev.personalfinancetracker.services.dto.movements.MovementDTO;
-import com.ryanev.personalfinancetracker.services.movements.MovementsService;
-import com.ryanev.personalfinancetracker.services.users.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class DefaultMovementsService implements MovementsService {
     @Autowired
-    private UserService userService;
+    private UserRepository userRepository;
     @Autowired
     private MovementsRepository movementsRepository;
     @Autowired
-    private CategoriesService categoriesService;
+    private CategoriesRepository categoriesRepository;
+    @Autowired
+    private MovementChangeNotifier movementChangeNotifier;
 
-    private void validateMovement(Movement movementForValidation) throws InvalidMovementException {
+    private void validateMovement(MovementDTO movementForValidation) throws InvalidMovementException {
         if (movementForValidation == null)
             throw new InvalidMovementException("Cannot save null movement");
 
         if (movementForValidation.getCategory() == null){
             throw new InvalidMovementException("Category cannot be null");
         }
-        if (movementForValidation.getUser() == null){
-            throw new InvalidMovementException("User cannot be null");
-        }
-        if (!userService.existsById(movementForValidation.getUser().getId())){
+        if (!userRepository.existsById(movementForValidation.getUserId())){
             throw new InvalidMovementException("User not found");
         }
-        if (!categoriesService.existsById(movementForValidation.getCategory().getId())){
+        if (!categoriesRepository.findByUserIdAndName(movementForValidation.getUserId(),movementForValidation.getCategory()).isPresent()){
             throw new InvalidMovementException("Category not found");
         }
         if (movementForValidation.getName() == null || movementForValidation.getName().isBlank()){
@@ -51,36 +51,55 @@ public class DefaultMovementsService implements MovementsService {
     }
 
     @Override
-    public List<Movement> getMovementsForUser(Long userId) {
-        return movementsRepository.findAllByUserId(userId);
-    }
-    @Override
-    public Movement saveMovement(Movement newMovement) throws InvalidMovementException {
-
-        validateMovement(newMovement);
-
-        Movement toReturn =  movementsRepository.save(newMovement);
-        userService.updateCacheWithMovementDate(newMovement.getUser().getId(),newMovement.getValueDate());
-        return toReturn;
+    public List<MovementDTO> getMovementsForUser(Long userId) {
+        return movementsRepository
+                .findAllByUserId(userId)
+                .stream()
+                .map(this::mapMovementToDTO)
+                .collect(Collectors.toList());
     }
 
+
     @Override
-    public Movement getMovementById(Long movementId) throws NoSuchElementException {
-        return movementsRepository.findById(movementId).orElseThrow();
+    public MovementDTO saveMovement(MovementDTO movement) throws InvalidMovementException {
+
+        validateMovement(movement);
+
+        if(movement.getId()!=null){
+            movementsRepository.findById(movement.getId());
+        }
+
+        Movement toSave = mapDtoToMovement(movement);
+        toSave = movementsRepository.save(toSave);
+
+
+        if(movement.getId()==null){
+            movementChangeNotifier.notifyAllObservers(List.of(toSave), CrudChangeNotifier.NewState.CREATE);
+            movement.setId(toSave.getId());
+        }
+        else {
+            movementChangeNotifier.notifyAllObservers(List.of(toSave), CrudChangeNotifier.NewState.UPDATE);
+        }
+
+        return movement;
+    }
+
+    @Override
+    public MovementDTO getMovementById(Long movementId) throws NoSuchElementException {
+        Movement movement = movementsRepository.findById(movementId).orElseThrow();
+        return mapMovementToDTO(movement);
     }
 
 
     @Override
     public void deleteMovementById(Long id) {
 
-        if (movementsRepository.existsById(id)){
-            movementsRepository.deleteById(id);
-        }
-    }
+        Optional<Movement> toDelete = movementsRepository.findById(id);
 
-    @Override
-    public List<Movement> getAll() {
-        return movementsRepository.findAll();
+        if(!toDelete.equals(Optional.empty())){
+            movementChangeNotifier.notifyAllObservers(List.of(toDelete.get()), CrudChangeNotifier.NewState.DELETE);
+            movementsRepository.delete(toDelete.get());
+        }
     }
 
     @Override
@@ -96,11 +115,32 @@ public class DefaultMovementsService implements MovementsService {
         MovementDTO newDTO = new MovementDTO();
         newDTO.setId(movement.getId());
         newDTO.setAmount(movement.getAmount());
-        newDTO.setDate(movement.getValueDate());
+        newDTO.setValueDate(movement.getValueDate());
         newDTO.setName(movement.getName());
         newDTO.setCategory(movement.getCategory().getName());
+        newDTO.setUserId(movement.getUser().getId());
 
         return newDTO;
+    }
+
+    private Movement mapDtoToMovement(MovementDTO dto){
+        Movement movementEntity;
+
+        if(dto.getId()!=null){
+            movementEntity = movementsRepository.findById(dto.getId()).orElseThrow();
+        }
+        else {
+            movementEntity = new Movement();
+        }
+
+        movementEntity.setName(dto.getName());
+        movementEntity.setDescription(dto.getDescription());
+        movementEntity.setAmount(dto.getAmount());
+        movementEntity.setValueDate(dto.getValueDate());
+        movementEntity.setUser(userRepository.findById(dto.getUserId()).orElseThrow());
+        movementEntity.setCategory(categoriesRepository.findByUserIdAndName(dto.getUserId(),dto.getCategory()).orElseThrow());
+
+        return movementEntity;
     }
 
 }

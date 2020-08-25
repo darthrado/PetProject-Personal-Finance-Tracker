@@ -137,11 +137,6 @@ public class DefaultCategoriesService implements CategoriesService {
     }
 
     @Override
-    public List<CategoryDTO> getAll() {
-        return categoriesRepository.findAll().stream().map(this::mapCategoryToDTO).collect(Collectors.toList());
-    }
-
-    @Override
     public void changeCategoryFlagActive(Long categoryId,Boolean flagActive) throws IncorrectCategoryIdException {
 
         MovementCategory categoryToModify;

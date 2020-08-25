@@ -35,8 +35,8 @@
             </div>
             <div class="form group_row">
                 <span>Category:</span><br/>
-                <select th:field="${movement.categoryId}" th:disabled="${disableFormFields}" />
-                    <option th:each="category: ${categories}" th:value="${category.id}" th:text="${category.name}" th:selected="${movement.categoryId}==${category.id}"></option>
+                <select th:field="${movement.categoryName}" th:disabled="${disableFormFields}" />
+                    <option th:each="category: ${categories}" th:value="${category.name}" th:text="${category.name}" th:selected="${movement.categoryName}==${category.name}"></option>
                 </select>
             </div><br/>
             <button type="submit" th:text="${action}" class="btn btn-primary btn-sm mb-3"></button>

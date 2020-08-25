@@ -1,30 +1,71 @@
 package com.ryanev.personalfinancetracker.web.dto.movements;
 
+import com.ryanev.personalfinancetracker.data.entities.Movement;
+
 import java.time.LocalDate;
 
-public interface MovementFormDTO {
+public class MovementFormDTO {
+    private Long id;
+    private Double unsignedAmount;
+    private LocalDate valueDate;
+    private String name;
+    private String categoryName;
+    private Boolean flagAmountPositive;
+    private String description;
 
+    public Long getId() {
+        return id;
+    }
 
-    Long getCategoryId();
-    void setCategoryId(Long categoryId);
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    Long getId();
-    void setId(Long id);
+    public Double getUnsignedAmount() {
+        return unsignedAmount;
+    }
 
-    Double getUnsignedAmount();
-    void setUnsignedAmount(Double amount);
+    public void setUnsignedAmount(Double unsignedAmount) {
+        this.unsignedAmount = unsignedAmount;
+    }
 
-    LocalDate getValueDate();
-    void setValueDate(LocalDate valueDate);
+    public LocalDate getValueDate() {
+        return valueDate;
+    }
 
-    String getName();
-    void setName(String name);
+    public void setValueDate(LocalDate valueDate) {
+        this.valueDate = valueDate;
+    }
 
-    Boolean getFlagAmountPositive();
-    void setFlagAmountPositive(Boolean flagAmountPositive);
+    public String getName() {
+        return name;
+    }
 
-    String getDescription();
-    void setDescription(String description);
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    //Movement build();
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
+
+    public Boolean getFlagAmountPositive() {
+        return flagAmountPositive;
+    }
+
+    public void setFlagAmountPositive(Boolean flagAmountPositive) {
+        this.flagAmountPositive = flagAmountPositive;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }
