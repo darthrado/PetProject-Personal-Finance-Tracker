@@ -3,6 +3,7 @@ package com.ryanev.personalfinancetracker.util;
 import com.ryanev.personalfinancetracker.data.entities.Movement;
 import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
 import com.ryanev.personalfinancetracker.data.entities.User;
+import com.ryanev.personalfinancetracker.services.dto.movements.MovementDTO;
 import com.ryanev.personalfinancetracker.util.user.TestUserBuilder;
 
 import java.time.LocalDate;
@@ -70,6 +71,19 @@ public class TestMovementBuilder {
 
     public Movement build(){
         return movementToBuild;
+    }
+
+    public MovementDTO buildDTO(){
+        MovementDTO dto = new MovementDTO();
+        dto.setId(movementToBuild.getId());
+        dto.setAmount(movementToBuild.getAmount());
+        dto.setName(movementToBuild.getName());
+        dto.setDescription(movementToBuild.getDescription());
+        dto.setUserId(movementToBuild.getUser().getId());
+        dto.setCategory(movementToBuild.getCategory().getName());
+        dto.setValueDate(movementToBuild.getValueDate());
+
+        return dto;
     }
 
 

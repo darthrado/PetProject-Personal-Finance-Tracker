@@ -74,11 +74,11 @@ public class MovementsServiceImpl implements MovementsService {
 
 
         if(movement.getId()==null){
-            movementChangeNotifier.notifyAllObservers(List.of(toSave), CrudChangeNotifier.NewState.CREATE);
+            movementChangeNotifier.notifyAllObservers(toSave, CrudChangeNotifier.NewState.CREATE);
             movement.setId(toSave.getId());
         }
         else {
-            movementChangeNotifier.notifyAllObservers(List.of(toSave), CrudChangeNotifier.NewState.UPDATE);
+            movementChangeNotifier.notifyAllObservers(toSave, CrudChangeNotifier.NewState.UPDATE);
         }
 
         return movement;
@@ -97,7 +97,7 @@ public class MovementsServiceImpl implements MovementsService {
         Optional<Movement> toDelete = movementsRepository.findById(id);
 
         if(!toDelete.equals(Optional.empty())){
-            movementChangeNotifier.notifyAllObservers(List.of(toDelete.get()), CrudChangeNotifier.NewState.DELETE);
+            movementChangeNotifier.notifyAllObservers(toDelete.get(), CrudChangeNotifier.NewState.DELETE);
             movementsRepository.delete(toDelete.get());
         }
     }

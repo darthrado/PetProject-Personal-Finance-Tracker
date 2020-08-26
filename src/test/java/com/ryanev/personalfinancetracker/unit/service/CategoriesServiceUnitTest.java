@@ -12,6 +12,7 @@ import com.ryanev.personalfinancetracker.services.categories.CategoriesServiceIm
 import com.ryanev.personalfinancetracker.services.categories.CategoryChangeNotifier;
 import com.ryanev.personalfinancetracker.services.crud_observer.CrudChangeNotifier;
 import com.ryanev.personalfinancetracker.services.dto.categories.CategoryDTO;
+import com.ryanev.personalfinancetracker.services.movements.MovementChangeNotifier;
 import com.ryanev.personalfinancetracker.util.TestCategoryBuilder;
 import com.ryanev.personalfinancetracker.util.user.TestUserBuilder;
 import org.junit.jupiter.api.Test;
