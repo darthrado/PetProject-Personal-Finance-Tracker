@@ -2,6 +2,7 @@ package com.ryanev.personalfinancetracker.util;
 
 import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
 import com.ryanev.personalfinancetracker.data.entities.User;
+import com.ryanev.personalfinancetracker.services.dto.categories.CategoryDTO;
 import com.ryanev.personalfinancetracker.util.user.TestUserBuilder;
 
 public class TestCategoryBuilder {
@@ -68,6 +69,18 @@ public class TestCategoryBuilder {
 
     public MovementCategory build(){
         return categoryToBuild;
+    }
+
+    public CategoryDTO buildDTO(){
+        CategoryDTO dto = new CategoryDTO();
+        dto.setUserId(categoryToBuild.getUser().getId());
+        dto.setName(categoryToBuild.getName());
+        dto.setDescription(categoryToBuild.getDescription());
+        dto.setId(categoryToBuild.getId());
+        dto.setFallbackCategoryId(categoryToBuild.getFallbackCategoryId());
+        dto.setFlagActive(categoryToBuild.getFlagActive());
+
+        return dto;
     }
 
 
