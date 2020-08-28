@@ -11,9 +11,12 @@ import com.ryanev.personalfinancetracker.services.users.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -181,8 +184,10 @@ public class CategoriesController {
 
         }
 
-        CategoryFormDTO categoryFormDTO = mapCategoryToFormDTO(movementCategory);
-
+        if(!model.containsAttribute("category")){
+            CategoryFormDTO categoryFormDTO = mapCategoryToFormDTO(movementCategory);
+            model.addAttribute("category",categoryFormDTO);
+        }
 
         model.addAttribute("fallbackCategories",defaultCategories);
         model.addAttribute("flagInactiveCategory",flagInactiveCategory);
@@ -190,20 +195,31 @@ public class CategoriesController {
         model.addAttribute("okButtonUrl",okButtonUrl);
         model.addAttribute("disableFormFields",disableFormFields);
         model.addAttribute("backButtonUrl",baseUrl);
-
         model.addAttribute("action",action);
         model.addAttribute("baseUrl",baseUrl);
-        model.addAttribute("category",categoryFormDTO);
         model.addAttribute("uid",userId);
     }
 
     @PostMapping("/save")
     public String saveCategoryPage(Model model,
                                    @PathVariable("userId") Long userId,
-                                   CategoryFormDTO categoryFormDTO) throws InvalidCategoryException, IncorrectUserIdException {
+                                   @ModelAttribute("category") @Valid CategoryFormDTO categoryFormDTO,
+                                   BindingResult bindingResult,
+                                   RedirectAttributes redirectAttributes) throws InvalidCategoryException, IncorrectUserIdException {
 
         if(!userService.existsById(userId)){
             throw new IncorrectUserIdException();
+        }
+
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.category", bindingResult);
+            redirectAttributes.addFlashAttribute("category", categoryFormDTO);
+            if (categoryFormDTO.getId()!=null){
+                return "redirect:"+buildControllerBaseURL(userId)+"/update?id="+categoryFormDTO.getId();
+            }
+            else {
+                return "redirect:"+buildControllerBaseURL(userId)+"/new";
+            }
         }
 
         CategoryDTO serviceDTO = mapFormDtoToCategory(userId, categoryFormDTO);
@@ -233,7 +249,7 @@ public class CategoriesController {
     @PostMapping("/delete/confirm")
     public String confirmDeleteOfCategory(Model model,
                                           @PathVariable("userId") Long userId,
-                                          CategoryFormDTO categoryFormDTO) throws IncorrectUserIdException, IncorrectCategoryIdException {
+                                          @ModelAttribute("category") CategoryFormDTO categoryFormDTO) throws IncorrectUserIdException, IncorrectCategoryIdException {
         if(!userService.existsById(userId)){
             throw new IncorrectUserIdException();
         }

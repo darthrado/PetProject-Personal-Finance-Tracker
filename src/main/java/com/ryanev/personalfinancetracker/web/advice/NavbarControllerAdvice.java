@@ -33,7 +33,7 @@ public class NavbarControllerAdvice {
             userDTO.setId(user.getId());
             userDTO.setUsername(user.getUsername());
 
-            if(userId!=null&&userId!=user.getId()){
+            if(userId!=null&&!userId.equals(user.getId())){
                 throw new UnauthorizedToAccessContent();
             }
 

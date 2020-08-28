@@ -15,6 +15,7 @@
         <div class="form group_row">
             <span>Name: </span><br/>
             <input type="text" placeholder="Name" th:field="${category.name}" th:disabled="${disableFormFields}"/>
+            <span th:if="${#fields.hasErrors('name')}" th:errors="${category.name}">Incorrect Name</span>
         </div>
         <div class="form group_row">
             <span>Description: </span><br/>

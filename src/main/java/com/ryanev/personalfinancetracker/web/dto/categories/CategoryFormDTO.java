@@ -2,9 +2,11 @@ package com.ryanev.personalfinancetracker.web.dto.categories;
 
 import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
 
-public class CategoryFormDTO{
+import javax.validation.constraints.NotEmpty;
 
+public class CategoryFormDTO{
     Long id;
+    @NotEmpty
     String name;
     String description;
     Long fallbackCategoryId;

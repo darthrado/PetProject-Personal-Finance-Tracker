@@ -1,7 +1,10 @@
 //package com.ryanev.personalfinancetracker.unit.controller;
 //
+//import com.ryanev.personalfinancetracker.data.entities.User;
+//import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
+//import com.ryanev.personalfinancetracker.services.dto.categories.CategoryDTO;
+//import com.ryanev.personalfinancetracker.util.user.TestUserBuilder;
 //import com.ryanev.personalfinancetracker.web.controllers.CategoriesController;
-//import com.ryanev.personalfinancetracker.data.entities.MovementCategory;
 //import com.ryanev.personalfinancetracker.exceptions.IncorrectCategoryIdException;
 //import com.ryanev.personalfinancetracker.exceptions.InvalidCategoryException;
 //import com.ryanev.personalfinancetracker.services.categories.CategoriesService;
@@ -19,6 +22,7 @@
 //import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 //import org.springframework.boot.test.mock.mockito.MockBean;
 //import org.springframework.http.MediaType;
+//import org.springframework.security.test.context.support.WithMockUser;
 //import org.springframework.test.context.junit.jupiter.SpringExtension;
 //import org.springframework.test.web.servlet.MockMvc;
 //import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -53,13 +57,34 @@
 //        return 888777666L;
 //    }
 //
+//    private void mockUser(String username,Long userId, Boolean valid){
+//
+//        if(valid){
+//            User mockUser = TestUserBuilder.createValidUser().withId(userId).withUsername(username).build();
+//            Mockito.lenient().when(userService.existsById(userId)).thenReturn(true);
+//            Mockito.lenient().when(userService.getUserByUsername(username)).thenReturn(mockUser);
+//            Mockito.lenient().when(userService.getUserById(userId)).thenReturn(mockUser);
+//        }else {
+//            Mockito.lenient().when(userService.existsById(userId)).thenReturn(false);
+//            Mockito.lenient().when(userService.getUserByUsername(username)).thenThrow(NoSuchElementException.class);
+//            Mockito.lenient().when(userService.getUserById(userId)).thenThrow(NoSuchElementException.class);
+//        }
+//    }
+//
+//    private void mockAuthorizeUser(){
+//
+//    }
+//
 //    @Test
+//    @WithMockUser("testUser")
 //    public void categoriesPage_CorrectGetRequest_allCategoriesForUserArePresent() throws Exception{
 //        Long userId = 777L;
 //        Integer expectedRecords = 8;
 //
+//        mockUser("testUser",userId,true);
+//
 //        Mockito.when(categoriesService.getCategoriesForUser(userId))
-//                .thenReturn(Collections.nCopies(expectedRecords, TestCategoryBuilder.createValidCategory().build()));
+//                .thenReturn(Collections.nCopies(expectedRecords, TestCategoryBuilder.createValidCategory().buildDTO()));
 //
 //        mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId)))
 //                .andExpect(MockMvcResultMatchers.status().isOk())
@@ -68,16 +93,19 @@
 //
 //    @ParameterizedTest
 //    @CsvSource({"234,SALARY,Active", "666,OTHER,Disabled", "543,Games,Active"})
+//    @WithMockUser("testUser")
 //    public void categoriesPage_correctGetRequest_dataOnASingleCategoryIsCorrect(Long userId,
 //                                                                                String movementCategoryName,
 //                                                                                String categoryStatus) throws Exception{
 //
-//        MovementCategory movementCategory = TestCategoryBuilder
+//        CategoryDTO movementCategory = TestCategoryBuilder
 //                .createValidCategory()
 //                .withName(movementCategoryName)
 //                .withStatus(categoryStatus)
-//                .build();
+//                .buildDTO();
 //        Mockito.when(categoriesService.getCategoriesForUser(userId)).thenReturn(List.of(movementCategory));
+//
+//        mockUser("testUser",userId,true);
 //
 //        mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId)))
 //                .andExpect(MockMvcResultMatchers.status().isOk())
@@ -91,8 +119,11 @@
 //    }
 //
 //    @Test
+//    @WithMockUser("testUser")
 //    public void categoriesPage_correctGetRequest_newCategoryButtonIsPresent() throws Exception{
+//
 //        Long userId = someUserId();
+//        mockUser("testUser",userId,true);
 //
 //        mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId)))
 //                .andExpect(MockMvcResultMatchers.status().isOk())
@@ -101,13 +132,20 @@
 //    }
 //
 //    @Test
+//    @WithMockUser("testUser")
+//
 //    public void categoriesPage_correctGetRequest_editAndDeleteButtonsArePresent() throws Exception{
 //
 //        Long userId = someUserId();
 //        Integer expectedRecords = 8;
+//        mockUser("testUser",userId,true);
+//
+//        CategoryDTO returnedCategory = TestCategoryBuilder
+//                .createValidCategory()
+//                .withUser(TestUserBuilder.createValidUser().withId(userId).build()).buildDTO();
 //
 //        Mockito.when(categoriesService.getCategoriesForUser(userId))
-//                .thenReturn(Collections.nCopies(expectedRecords, TestCategoryBuilder.createValidCategory().build()));
+//                .thenReturn(Collections.nCopies(expectedRecords, returnedCategory));
 //
 //        mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId)))
 //                .andExpect(MockMvcResultMatchers.status().isOk())
@@ -118,20 +156,37 @@
 //
 //    @ParameterizedTest
 //    @ValueSource(longs = {-22,3456,77,22222,1234567456})
-//    public void categoriesPage_incorrectGetRequest_incorrectUserId_clientErrorIsThrown(Long userId) throws Exception{
+//    @WithMockUser("testUser")
+//    public void categoriesPage_incorrectGetRequest_attemptingToAccessDifferentUserData_clientErrorIsThrown(Long userId) throws Exception{
 //
-//        Mockito.when(userService.getUserById(userId)).thenThrow(NoSuchElementException.class);
+//        Long loggedUser = 23941L;
+//        if(userId.equals(loggedUser)){
+//            throw new RuntimeException("Passed user can't be the same as logged user");
+//        }
+//
+//        mockUser("testUser",loggedUser,true);
 //
 //        mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId)))
-//                .andExpect(MockMvcResultMatchers.status().is4xxClientError());
+//                .andExpect(MockMvcResultMatchers.status().isForbidden());
+//    }
+//
+//    @ParameterizedTest
+//    @ValueSource(longs = {-22,3456,77,22222,1234567456})
+//    public void categoriesPage_incorrectGetRequest_unauthorized_clientErrorIsThrown(Long userId) throws Exception{
+//
+//        mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId)))
+//                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
 //    }
 //
 //    @ParameterizedTest
 //    @ValueSource(strings = {"id","name","description"})
+//    @WithMockUser("testUser")
 //    public void categoryFormNew_correctGetRequest_allFormFieldsArePresent(String fieldId) throws Exception{
 //
 //        Long userId = someUserId();
 //        String testString = "id=\""+fieldId+"\"";
+//
+//        mockUser("testUser",userId,true);
 //
 //        mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId).concat("/new")))
 //                .andExpect(MockMvcResultMatchers.status().isOk())
@@ -139,8 +194,11 @@
 //    }
 //
 //    @Test
+//    @WithMockUser("testUser")
 //    public void categoryFormNew_correctGetRequest_saveLinkIsPresent() throws Exception{
 //        Long userId = someUserId();
+//
+//        mockUser("testUser",userId,true);
 //
 //        mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId).concat("/new")))
 //                .andExpect(MockMvcResultMatchers.status().isOk())
@@ -148,8 +206,11 @@
 //    }
 //
 //    @Test
+//    @WithMockUser("testUser")
 //    public void categoryFormNew_correctGetRequest_backLinkIsPresent() throws Exception{
 //        Long userId = someUserId();
+//
+//        mockUser("testUser",userId,true);
 //
 //        mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId).concat("/new")))
 //                .andExpect(MockMvcResultMatchers.status().isOk())
@@ -158,24 +219,41 @@
 //
 //    @ParameterizedTest
 //    @ValueSource(longs = {-22,3456,77,22222,1234567456})
-//    public void categoryFormNew_incorrectGetRequest_incorrectUserId_clientErrorIsThrown(Long userId) throws Exception{
-//
-//        Mockito.when(userService.getUserById(userId)).thenThrow(NoSuchElementException.class);
+//    public void categoryFormNew_incorrectGetRequest_unauthorized_clientErrorIsThrown(Long userId) throws Exception{
 //
 //        mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId).concat("/new")))
-//                .andExpect(MockMvcResultMatchers.status().is4xxClientError());
+//                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+//    }
+//
+//    @ParameterizedTest
+//    @ValueSource(longs = {-22,3456,77,22222,1234567456})
+//    @WithMockUser("testUser")
+//    public void categoryFormNew_incorrectGetRequest_attemptingToAccessDifferentUserData_clientErrorIsThrown(Long userId) throws Exception{
+//
+//        Long loggedUser = 23941L;
+//        if(userId.equals(loggedUser)){
+//            throw new RuntimeException("Passed user can't be the same as logged user");
+//        }
+//
+//        mockUser("testUser",loggedUser,true);
+//
+//        mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId).concat("/new")))
+//                .andExpect(MockMvcResultMatchers.status().isForbidden());
 //    }
 //
 //    @ParameterizedTest
 //    @CsvSource({"-333,1,SALARY"})
+//    @WithMockUser("testUser")
 //    public void categoryFormEdit_correctGetRequest_formDataIsCorrectlyLoaded(Long userId,
 //                                                                             Long categoryId,
 //                                                                             String categoryName) throws Exception {
 //
-//        MovementCategory categoryToEdit = TestCategoryBuilder.createValidCategory()
+//        mockUser("testUser",userId,true);
+//
+//        CategoryDTO categoryToEdit = TestCategoryBuilder.createValidCategory()
 //                .withId(categoryId)
 //                .withName(categoryName)
-//                .build();
+//                .buildDTO();
 //
 //        Mockito.when(categoriesService.getCategoryById(categoryId)).thenReturn(categoryToEdit);
 //
@@ -191,12 +269,14 @@
 //    }
 //
 //    @Test
+//    @WithMockUser("testUser")
 //    public void movementFormEdit_correctGetRequest_saveLinkIsPresent() throws Exception{
 //        Long userId = someUserId();
 //        Long categoryId = -112233L;
 //
+//        mockUser("testUser",userId,true);
 //
-//        MovementCategory movementCategory = TestCategoryBuilder.createValidCategory().withId(categoryId).build();
+//        CategoryDTO movementCategory = TestCategoryBuilder.createValidCategory().withId(categoryId).buildDTO();
 //
 //        Mockito.when(categoriesService.getCategoryById(categoryId)).thenReturn(movementCategory);
 //
@@ -207,25 +287,46 @@
 //
 //    @ParameterizedTest
 //    @CsvSource({"42,1","-777,2","666,3"})
-//    public void categoryFormEdit_incorrectGetRequest_incorrectUserId_clientErrorIsThrown(Long userId, Long categoryId) throws Exception{
-//        Mockito.when(userService.getUserById(userId)).thenThrow(NoSuchElementException.class);
+//    public void categoryFormEdit_incorrectGetRequest_unauthorized_clientErrorIsThrown(Long userId, Long categoryId) throws Exception{
 //
 //        mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId).concat("/update").concat("?id=").concat(categoryId.toString())))
-//                .andExpect(MockMvcResultMatchers.status().is4xxClientError());
+//                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+//    }
+//
+//    @ParameterizedTest
+//    @CsvSource({"42,1","-777,2","666,3"})
+//    @WithMockUser("testUser")
+//    public void categoryFormEdit_incorrectGetRequest_attemptingToAccessDifferentUserData_clientErrorIsThrown(Long userId, Long categoryId) throws Exception{
+//
+//        Long loggedUser = 23941L;
+//        if(userId.equals(loggedUser)){
+//            throw new RuntimeException("Passed user can't be the same as logged user");
+//        }
+//
+//        mockUser("testUser",loggedUser,true);
+//
+//        mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId).concat("/update").concat("?id=").concat(categoryId.toString())))
+//                .andExpect(MockMvcResultMatchers.status().isForbidden());
 //    }
 //
 //    @Test
+//    @WithMockUser("testUser")
 //    public void categoryFormEdit_incorrectGetRequest_missingCategoryId_clientErrorIsThrown() throws Exception{
 //        Long userId = someUserId();
+//
+//        mockUser("testUser",userId,true);
 //
 //        mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId).concat("/update")))
 //                .andExpect(MockMvcResultMatchers.status().is4xxClientError());
 //    }
 //
 //    @Test
+//    @WithMockUser("testUser")
 //    public void movementFormEdit_incorrectGetRequest_incorrectCategoryId_clientErrorIsThrown() throws Exception{
 //        Long userId = someUserId();
 //        Long categoryId = -112233L;
+//
+//        mockUser("testUser",userId,true);
 //
 //        Mockito.when(categoriesService.getCategoryById(categoryId)).thenThrow(NoSuchElementException.class);
 //
@@ -235,8 +336,11 @@
 //
 //    @ParameterizedTest
 //    @CsvSource({"777,SALARY"})
+//    @WithMockUser("testUser")
 //    public void categoryFormSave_CorrectPostRequest_requestIsCorrectlySaved(Long userId,
 //                                                                            String name) throws Exception {
+//
+//        mockUser("testUser",userId,true);
 //
 //        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post(getControllerBaseURL(userId).concat("/save"))
 //                .with(csrf())
@@ -249,16 +353,19 @@
 //                .andDo(MockMvcResultHandlers.print())
 //                .andExpect(MockMvcResultMatchers.status().is3xxRedirection());
 //
-//        ArgumentCaptor<MovementCategory> categoryArgumentCaptorArgumentCaptor = ArgumentCaptor.forClass(MovementCategory.class);
+//        ArgumentCaptor<CategoryDTO> categoryArgumentCaptorArgumentCaptor = ArgumentCaptor.forClass(CategoryDTO.class);
 //        Mockito.verify(categoriesService).saveCategory(categoryArgumentCaptorArgumentCaptor.capture());
 //        assertThat(categoryArgumentCaptorArgumentCaptor.getValue().getId()).isNull();
 //        assertThat(categoryArgumentCaptorArgumentCaptor.getValue().getName()).isEqualTo(name);
 //    }
 //
 //    @Test
+//    @WithMockUser("testUser")
 //    public void categoryFormSave_incorrectPostRequest_nameIsEmpty_clientErrorIsThrown() throws Exception {
 //
 //        Long userId = someUserId();
+//
+//        mockUser("testUser",userId,true);
 //
 //        Mockito.when(categoriesService.saveCategory(Mockito.argThat(category -> category.getName()==null||category.getName().isBlank())))
 //                .thenThrow(InvalidCategoryException.class);
@@ -277,11 +384,9 @@
 //
 //    @ParameterizedTest
 //    @CsvSource({"777,SALARY"})
-//    public void categoryFormSave_incorrectPostRequest_userIdIsIncorrect_clientErrorIsThrown(Long userId,
+//    public void categoryFormSave_incorrectPostRequest_unauthorized_clientErrorIsThrown(Long userId,
 //                                                                                            String name) throws Exception {
 //
-//        Mockito.when(userService.getUserById(userId))
-//                .thenThrow(NoSuchElementException.class);
 //
 //        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post(getControllerBaseURL(userId).concat("/save"))
 //                .with(csrf())
@@ -291,11 +396,12 @@
 //
 //        mockMvc.perform(request)
 //                .andDo(MockMvcResultHandlers.print())
-//                .andExpect(MockMvcResultMatchers.status().is4xxClientError());
+//                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
 //
 //    }
 //
 //    @Test
+//    @WithMockUser("testUser")
 //    public void categoriesPage_correctGetRequest_enableLinkOnlyPresentForInactiveCategories()throws Exception{
 //
 //        Long userId = someUserId();
@@ -307,7 +413,9 @@
 //                .build()
 //                .toUriString());
 //
-//        MovementCategory returnedCategory = TestCategoryBuilder.createValidCategory().withId(categoryId).withFlagActive(false).build();
+//        mockUser("testUser",userId,true);
+//
+//        CategoryDTO returnedCategory = TestCategoryBuilder.createValidCategory().withId(categoryId).withFlagActive(false).buildDTO();
 //
 //        Mockito.when(categoriesService.getCategoriesForUser(userId)).thenReturn(List.of(returnedCategory));
 //
@@ -330,7 +438,7 @@
 //                .build()
 //                .toUriString());
 //
-//        MovementCategory returnedCategory = TestCategoryBuilder.createValidCategory().withId(categoryId).withFlagActive(true).build();
+//        CategoryDTO returnedCategory = TestCategoryBuilder.createValidCategory().withId(categoryId).withFlagActive(true).buildDTO();
 //
 //        Mockito.when(categoriesService.getCategoriesForUser(userId)).thenReturn(List.of(returnedCategory));
 //
@@ -450,11 +558,11 @@
 //                                                                             Long categoryId,
 //                                                                             String categoryName) throws Exception {
 //
-//        MovementCategory categoryToEdit = TestCategoryBuilder.createValidCategory()
+//        CategoryDTO categoryToEdit = TestCategoryBuilder.createValidCategory()
 //                .withId(categoryId)
 //                .withName(categoryName)
 //                .withFlagActive(false)
-//                .build();
+//                .buildDTO();
 //
 //        Mockito.when(categoriesService.getCategoryById(categoryId)).thenReturn(categoryToEdit);
 //
@@ -472,7 +580,7 @@
 //                                                                            Long categoryId,
 //                                                                            String name) throws Exception {
 //
-//        MovementCategory originalMovement = TestCategoryBuilder.createValidCategory().withId(categoryId).build();
+//        CategoryDTO originalMovement = TestCategoryBuilder.createValidCategory().withId(categoryId).buildDTO();
 //        Mockito.when(categoriesService.getCategoryById(categoryId))
 //                .thenReturn(originalMovement);
 //
@@ -487,7 +595,7 @@
 //                .andDo(MockMvcResultHandlers.print())
 //                .andExpect(MockMvcResultMatchers.status().is3xxRedirection());
 //
-//        ArgumentCaptor<MovementCategory> categoryArgumentCaptorArgumentCaptor = ArgumentCaptor.forClass(MovementCategory.class);
+//        ArgumentCaptor<CategoryDTO> categoryArgumentCaptorArgumentCaptor = ArgumentCaptor.forClass(CategoryDTO.class);
 //        Mockito.verify(categoriesService).saveCategory(categoryArgumentCaptorArgumentCaptor.capture());
 //        assertThat(categoryArgumentCaptorArgumentCaptor.getValue()).isSameAs(originalMovement);
 //        assertThat(categoryArgumentCaptorArgumentCaptor.getValue().getId()).isEqualTo(categoryId);
@@ -503,7 +611,7 @@
 //        String defaultCategoryName = "This is a default category";
 //
 //        Mockito.when(categoriesService.getCategoriesForUser(userId))
-//                .thenReturn(Collections.nCopies(expectedRecords, TestCategoryBuilder.createValidCategory().withName(defaultCategoryName).build()));
+//                .thenReturn(Collections.nCopies(expectedRecords, TestCategoryBuilder.createValidCategory().withName(defaultCategoryName).buildDTO()));
 //        Mockito.when(categoriesService.isCategoryDefault(defaultCategoryName)).thenReturn(true);
 //
 //        mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId)))
