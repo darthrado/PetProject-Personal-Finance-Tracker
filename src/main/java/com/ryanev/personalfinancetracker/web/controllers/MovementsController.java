@@ -14,7 +14,9 @@ import com.ryanev.personalfinancetracker.services.users.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
@@ -186,7 +188,6 @@ public class MovementsController {
         String baseUrl = buildControllerBaseURL(userId);
         String okButtonUrl;
         String formMethod;
-        MovementFormDTO movementFormEntry = mapMovementToFormDTO(movement);
 
         boolean disableFormFields;
         if (action.equals("Delete")){
@@ -200,6 +201,11 @@ public class MovementsController {
             disableFormFields = false;
         }
 
+        if (!model.containsAttribute("movement")){
+            MovementFormDTO movementFormEntry = mapMovementToFormDTO(movement);
+            model.addAttribute("movement",movementFormEntry);
+        }
+
         model.addAttribute("okButtonText",action);
         model.addAttribute("okButtonUrl",okButtonUrl);
         model.addAttribute("disableFormFields",disableFormFields);
@@ -208,7 +214,6 @@ public class MovementsController {
         model.addAttribute("formMethod",formMethod);
         model.addAttribute("action",action);
         model.addAttribute("baseUrl",baseUrl);
-        model.addAttribute("movement",movementFormEntry);
         model.addAttribute("uid",userId);
         model.addAttribute("categories",categories);
 
@@ -218,20 +223,26 @@ public class MovementsController {
 
     @PostMapping("/save")
     public  String saveMovement(Model model,
-                                @Valid
-                                @ModelAttribute("movement")    MovementFormDTO newMovementDTO,
-                                @PathVariable("userId") Long userId) throws IncorrectUserIdException, InvalidMovementException, IncorrectCategoryIdException {
+                                @PathVariable("userId") Long userId,
+                                @ModelAttribute("movement")  @Valid  MovementFormDTO newMovementDTO,
+                                BindingResult bindingResult,
+                                RedirectAttributes redirectAttributes) throws IncorrectUserIdException, InvalidMovementException, IncorrectCategoryIdException {
 
         if(!userService.existsById(userId)){
             throw new IncorrectUserIdException();
         }
 
+        if(bindingResult.hasErrors()){
+            redirectAttributes.addFlashAttribute("movement",newMovementDTO);
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.movement",bindingResult);
 
-        //TODO: I don't like this band aid fix. Add a validator for the DTO
-        if (newMovementDTO.getUnsignedAmount() == null || newMovementDTO.getFlagAmountPositive() == null)
-            throw new InvalidMovementException("Amount is null or Flag Amount is null");
-        if(newMovementDTO.getUnsignedAmount() < 0)
-            throw new InvalidMovementException("Amount can't be negative");
+            if(newMovementDTO.getId()!=null){
+                return "redirect:"+buildControllerBaseURL(userId)+"/update?id="+newMovementDTO.getId();
+            }
+            else {
+                return "redirect:"+buildControllerBaseURL(userId)+"/new";
+            }
+        }
 
         MovementDTO movement = mapDtoToMovement(userId,newMovementDTO);
 

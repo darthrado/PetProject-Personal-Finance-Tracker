@@ -14,7 +14,8 @@
             <input type="hidden" th:field="${movement.id}" />
             <div class="form group_row">
                 <span>Date:</span><br/>
-                <input type="date" th:field="${movement.valueDate}" th:disabled="${disableFormFields}" /> <br/>
+                <input type="date" th:field="${movement.valueDate}" th:disabled="${disableFormFields}" />
+                <span class="text-danger" th:if="${#fields.hasErrors('valueDate')}" th:errors="${movement.valueDate}">Incorrect Date</span>
             </div>
 
             <div class="form group_row">
@@ -24,10 +25,13 @@
                     <option value="false">expense</option>
                 </select>
                 <input type="number" step="0.01" th:field="${movement.unsignedAmount}" th:disabled="${disableFormFields}" />
+                <span class="text-danger" th:if="${#fields.hasErrors('flagAmountPositive')}" th:errors="${movement.flagAmountPositive}">Incorrect Flag Positive</span>
+                <span class="text-danger" th:if="${#fields.hasErrors('unsignedAmount')}" th:errors="${movement.unsignedAmount}">Incorrect Amount</span>
             </div>
             <div class="form group_row">
                 <span>Name:</span><br/>
                 <input type="text" placeholder="Name" th:field="${movement.name}" th:disabled="${disableFormFields}"/>
+                <span class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="${movement.name}">Incorrect Name</span>
             </div>
             <div class="form group_row">
                 <span>Description:</span><br/>
@@ -38,6 +42,7 @@
                 <select th:field="${movement.categoryName}" th:disabled="${disableFormFields}" />
                     <option th:each="category: ${categories}" th:value="${category.name}" th:text="${category.name}" th:selected="${movement.categoryName}==${category.name}"></option>
                 </select>
+                <span class="text-danger" th:if="${#fields.hasErrors('categoryName')}" th:errors="${movement.categoryName}">Incorrect Category</span>
             </div><br/>
             <button type="submit" th:text="${action}" class="btn btn-primary btn-sm mb-3"></button>
             <a th:href="${baseUrl}" class="btn btn-primary btn-sm mb-3">Back</a>
