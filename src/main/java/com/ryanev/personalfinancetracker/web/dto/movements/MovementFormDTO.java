@@ -1,12 +1,6 @@
 package com.ryanev.personalfinancetracker.web.dto.movements;
 
-import com.ryanev.personalfinancetracker.data.entities.Movement;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.*;
 import java.time.LocalDate;
 
 public class MovementFormDTO {
@@ -18,15 +12,14 @@ public class MovementFormDTO {
     @NotNull
     private LocalDate valueDate;
 
-    @NotEmpty
+    @NotBlank
     private String name;
 
-    @NotNull
+    @NotBlank
     private String categoryName;
 
     @NotNull
     private Boolean flagAmountPositive;
-
 
     private String description;
 
