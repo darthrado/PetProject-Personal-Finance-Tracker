@@ -133,5 +133,8 @@ public class UserServiceImpl implements UserService {
         userNotifier.notifyAllObservers(newUser, CrudChangeNotifier.NewState.CREATE);
     }
 
-
+    @Override
+    public Boolean existsByUsername(String username) {
+        return userRepository.existsByUsername(username);
+    }
 }

@@ -18,6 +18,7 @@ public interface UserService {
     void updateCacheWithMovementDate(Long userId, LocalDate movementDate);
 
     Boolean existsById(Long id);
+    Boolean existsByUsername(String username);
 
     void register(UserAccountDTO userAccountDTO) throws UserAlreadyExistsException;
 }

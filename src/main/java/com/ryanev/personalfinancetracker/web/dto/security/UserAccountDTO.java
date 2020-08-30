@@ -1,15 +1,16 @@
 package com.ryanev.personalfinancetracker.web.dto.security;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 
 public class UserAccountDTO {
 
-    @NotEmpty
+    @NotBlank
     private String username;
-    @NotEmpty
+    @NotBlank
     private String password;
-    @Email
+    @NotBlank @Email
     private String email;
 
     public String getUsername() {
