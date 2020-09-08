@@ -3,7 +3,7 @@ create sequence if not exists seq_users ;
 
 create table if not exists users (
 	id BIGINT NOT NULL UNIQUE DEFAULT nextval('seq_users') PRIMARY KEY,
-	username varchar(255) NOT NULL UNIQUE,
+	username varchar(255) NOT NULL UNIQUE
 );
 
 --create table categories
@@ -38,10 +38,16 @@ create sequence if not exists seq_targets;
 
 create table if not exists targets (
 	id BIGINT NOT NULL UNIQUE DEFAULT nextval('seq_targets') PRIMARY KEY,
-	user_id BIGINT NOT NULL references users(id), 
-	type VARCHAR(255) NOT NULL,
-	external_id BIGINT,
-	CONSTRAINT targets_uid_name_unique UNIQUE(user_id,type,external_id)
+	user_id BIGINT NOT NULL references users(id)
+);
+
+create table if not exists targets_savings (
+	target_id BIGINT NOT NULL UNIQUE references targets(id)
+);
+
+create table if not exists targets_expenses(
+	target_id BIGINT NOT NULL UNIQUE references targets(id),
+	category_id BIGINT NOT NULL UNIQUE references movement_categories(id)
 );
 
 --create table target_details
@@ -56,13 +62,13 @@ create table if not exists target_details (
 );
 
 create table if not exists users_cache_data (
-	id BIGINT NOT NULL UNIQUE PRIMARY KEY REFERENCES users(id),
+	user_id BIGINT NOT NULL UNIQUE PRIMARY KEY REFERENCES users(id),
 	min_movement_date DATE,
-	max_movement_date DATE,
+	max_movement_date DATE
 );
 
 create table if not exists users_auth (
-	id BIGINT NOT NULL UNIQUE PRIMARY KEY REFERENCES users(id),
+	user_id BIGINT NOT NULL UNIQUE PRIMARY KEY REFERENCES users(id),
 	password varchar(255) NOT NULL ,
 	email varchar(255) NOT NULL unique,
 	role varchar(255),
