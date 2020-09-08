@@ -7,13 +7,14 @@
 <div class="text-center">
  <h2>Welcome, oh wild spender! </h2>
 
-<div>I see you're ready to take on the next step in your financial career.</div>
-<div>Perhaps you've just come to the realisation that you're spending a tad bit too much each month and you want to get your shopping habits under control.</div>
-<div>Perhaps you've come to this conclusion a long time ago, but are tired of book keeping or excel spreadsheets.</div>
-<div>Perhaps you're some random guy on the internet with nothing better to do than to seek out random web pages and try to mess with them.</div>
-<div>Well then, fear not because <span>Financial Tracker App</span> is here for you!</div>
-<br>
-<div><a href="/login">Login</a> to pick up from where you left off last time or <a href="/register">Register</a> if you're a new user</div>
+ <div>I see you're ready to take on the next step in your financial career.</div>
+ <div>Perhaps you've just come to the realisation that you're spending a tad bit too much each month and you want to get your shopping habits under control.</div>
+ <div>Perhaps you've come to this conclusion a long time ago, but are tired of book keeping or excel spreadsheets.</div>
+ <div>Perhaps you're some random guy on the internet with nothing better to do than to seek out random web pages and try to mess with them.</div>
+ <div>Well then, fear not because <span>Financial Tracker App</span> is here for you!</div>
+ <br>
+ <div th:if="${userId}">Go to <a th:href="'/'+${userId}+'/overview/'">Period Overview</a> to see what you've been up to.</div>
+ <div th:unless="${userId}"><a href="/login">Login</a> to pick up from where you left off last time or <a href="/register">Register</a> if you're a new user</div>
 </div>
 
 </body>

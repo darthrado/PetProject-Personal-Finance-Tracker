@@ -30,9 +30,8 @@ public class HomeController {
 
     @GetMapping("/{user_id}/")
     public String displayIndividualHomepage(@PathVariable("user_id") int userId,  Model model){
-        String greetUser = "Hello "+userId;
 
-        model.addAttribute("greeting",greetUser);
+        model.addAttribute("userId",userId);
 
         return "home/home";
     }
