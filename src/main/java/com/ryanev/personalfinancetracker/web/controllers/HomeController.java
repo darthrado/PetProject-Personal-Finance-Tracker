@@ -1,5 +1,6 @@
 package com.ryanev.personalfinancetracker.web.controllers;
 
+import com.ryanev.personalfinancetracker.web.dto.UserNavbarDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
@@ -15,9 +16,14 @@ public class HomeController {
 
     @GetMapping("/")
     public String displayHomepage(Model model){
-        String helloWorld = "Hello world";
-        model.addAttribute("greeting",helloWorld);
-        //TODO: redirect to authentication page or to user homepage if already authenticated
+
+        if(model.containsAttribute("userNav") && model.getAttribute("userNav") instanceof  UserNavbarDTO){
+            UserNavbarDTO navbarDTO = (UserNavbarDTO)model.getAttribute("userNav");
+            if (navbarDTO.getId()!=null){
+                return "redirect:/"+navbarDTO.getId()+"/";
+            }
+        }
+        //TODO: not very clean but works for now. See if I can improve on this
 
         return "home/home";
     }

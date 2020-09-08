@@ -26,9 +26,11 @@ public class NavbarControllerAdvice {
         SecurityContext context = SecurityContextHolder.getContext();
         Authentication authentication = context.getAuthentication();
         String username = authentication.getName();
+        Boolean flagLoggedIn;
+
+        UserNavbarDTO userDTO = new UserNavbarDTO();
 
         if(!username.equals("anonymousUser")){ //TODO i don't like this. there can be a user with "anonymousUser"
-            UserNavbarDTO userDTO = new UserNavbarDTO();
             User user = userService.getUserByUsername(username);
             userDTO.setId(user.getId());
             userDTO.setUsername(user.getUsername());
@@ -38,7 +40,14 @@ public class NavbarControllerAdvice {
             }
 
             model.addAttribute("userNav", userDTO);
+            flagLoggedIn = true;
         }
+        else{
+            userDTO.setUsername("Not Logged In");
+            flagLoggedIn = false;
+        }
+        model.addAttribute("userNav", userDTO);
+        model.addAttribute("flagLoggedIn",flagLoggedIn);
     }
 
 
