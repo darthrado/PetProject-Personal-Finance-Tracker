@@ -74,6 +74,7 @@ public class MovementsController {
         formDTO.setName(movement.getName());
         formDTO.setValueDate(movement.getValueDate());
         formDTO.setCategoryName(movement.getCategory());
+        formDTO.setDescription(movement.getDescription());
         return formDTO;
     }
 

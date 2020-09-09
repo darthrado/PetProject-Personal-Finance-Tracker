@@ -35,6 +35,7 @@
                 <a class="nav-link" th:href="@{'/'+${userNav.id}+'/'}">Home</a>
             </li>
 
+
             <li th:if="${flagLoggedIn&&caller=='overview'}" class="nav-item active">
                 <a class="nav-link" th:href="@{'/'+${userNav.id}+'/overview'}">Period Overview</a>
             </li>

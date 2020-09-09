@@ -119,6 +119,7 @@ public class MovementsServiceImpl implements MovementsService {
         newDTO.setName(movement.getName());
         newDTO.setCategory(movement.getCategory().getName());
         newDTO.setUserId(movement.getUser().getId());
+        newDTO.setDescription(movement.getDescription());
 
         return newDTO;
     }
