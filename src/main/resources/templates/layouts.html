@@ -27,19 +27,42 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavDropdown">
         <ul class="navbar-nav">
-            <li th:if="${flagLoggedIn}" class="nav-item active">
+<!--            todo: i don't like this solution figure out a more elegant way to do it-->
+            <li th:if="${flagLoggedIn&&caller=='home'}" class="nav-item active">
                 <a class="nav-link" th:href="@{'/'+${userNav.id}+'/'}">Home</a>
             </li>
-            <li th:if="${flagLoggedIn}" class="nav-item active">
+            <li th:if="${flagLoggedIn&&caller!='home'}" class="nav-item">
+                <a class="nav-link" th:href="@{'/'+${userNav.id}+'/'}">Home</a>
+            </li>
+
+            <li th:if="${flagLoggedIn&&caller=='overview'}" class="nav-item active">
                 <a class="nav-link" th:href="@{'/'+${userNav.id}+'/overview'}">Period Overview</a>
             </li>
-            <li th:if="${flagLoggedIn}" class="nav-item active">
+            <li th:if="${flagLoggedIn&&caller!='overview'}" class="nav-item">
+                <a class="nav-link" th:href="@{'/'+${userNav.id}+'/overview'}">Period Overview</a>
+            </li>
+
+
+            <li th:if="${flagLoggedIn&&caller=='movements'}" class="nav-item active">
                 <a class="nav-link" th:href="@{'/'+${userNav.id}+'/movements'}">Movements</a>
             </li>
-            <li th:if="${flagLoggedIn}" class="nav-item active">
+            <li th:if="${flagLoggedIn&&caller!='movements'}" class="nav-item">
+                <a class="nav-link" th:href="@{'/'+${userNav.id}+'/movements'}">Movements</a>
+            </li>
+
+
+            <li th:if="${flagLoggedIn&&caller=='categories'}" class="nav-item active">
                 <a class="nav-link" th:href="@{'/'+${userNav.id}+'/categories'}">Categories</a>
             </li>
-            <li th:if="${flagLoggedIn}" class="nav-item active">
+            <li th:if="${flagLoggedIn&&caller!='categories'}" class="nav-item">
+                <a class="nav-link" th:href="@{'/'+${userNav.id}+'/categories'}">Categories</a>
+            </li>
+
+
+            <li th:if="${flagLoggedIn&&caller=='targets'}" class="nav-item active">
+                <a class="nav-link" th:href="@{'/'+${userNav.id}+'/targets'}">Targets</a>
+            </li>
+            <li th:if="${flagLoggedIn&&caller!='targets'}" class="nav-item">
                 <a class="nav-link" th:href="@{'/'+${userNav.id}+'/targets'}">Targets</a>
             </li>
         </ul>

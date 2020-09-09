@@ -5,7 +5,7 @@
 
 <body>
 
-<nav th:replace="layouts :: navbar"></nav>
+<nav th:replace="layouts :: navbar(caller='categories')"></nav>
 
 <a  th:href="${baseUrl}+'/new'" class="btn btn-primary btn-sm mb-3">New Category</a>
 

@@ -4,7 +4,7 @@
 <head th:replace="layouts :: head(title='Period Overview')"></head>
 <body>
 
-<nav th:replace="layouts :: navbar"></nav>
+<nav th:replace="layouts :: navbar(caller='overview')"></nav>
 
 <div>
     <form th:action="${searchUri}"  method="get">

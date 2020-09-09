@@ -5,7 +5,7 @@
 
 <body>
 
-<nav th:replace="layouts :: navbar"></nav>
+<nav th:replace="layouts :: navbar(caller='categories')"></nav>
 
 <h2 th:text="${action}+' Category'"></h2>
 <div th:if="${flagInactiveCategory}">Category disabled - edit not permitted</div>

@@ -5,7 +5,7 @@
 </head>
 
 <body>
-    <nav th:replace="layouts :: navbar"></nav>
+    <nav th:replace="layouts :: navbar(caller='movements')"></nav>
 
     <h2 th:text="${action}+' Movement'"></h2>
 
