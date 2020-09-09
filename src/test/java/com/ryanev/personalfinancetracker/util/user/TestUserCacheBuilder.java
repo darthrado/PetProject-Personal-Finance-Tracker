@@ -2,6 +2,7 @@ package com.ryanev.personalfinancetracker.util.user;
 
 import com.ryanev.personalfinancetracker.data.entities.User;
 import com.ryanev.personalfinancetracker.data.entities.UserCacheData;
+import com.ryanev.personalfinancetracker.services.dto.users.UserCacheDTO;
 
 import java.time.LocalDate;
 
@@ -42,5 +43,15 @@ public class TestUserCacheBuilder {
 
     public UserCacheData build(){
         return userCacheToBuild;
+    }
+
+    public UserCacheDTO buildDTO(){
+
+        UserCacheDTO dto = new UserCacheDTO();
+        dto.setUserId(userCacheToBuild.getUserId());
+        dto.setMaxMovementDate(userCacheToBuild.getMaxMovementDate());
+        dto.setMinMovementDate(userCacheToBuild.getMinMovementDate());
+
+        return dto;
     }
 }
