@@ -19,7 +19,7 @@
 <nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark">
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
-    <a class="navbar-brand" href="#">Personal Finance Tracker</a>
+    <a class="navbar-brand" href="/">Personal Finance Tracker</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -69,6 +69,7 @@
 
     <div class="navbar-text" th:text="${userNav.username}"></div>
     <a th:if="${flagLoggedIn}" class="nav-link" href="/logout">Log Out</a>
+    <a th:unless="${flagLoggedIn}" class="nav-link" href="/login">Log In</a>
 </nav>
 
 </html>
