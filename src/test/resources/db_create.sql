@@ -29,7 +29,7 @@ create table if not exists movements (
 	value_date DATE NOT NULL,
 	name VARCHAR(255) NOT NULL,
 	description VARCHAR(1000),
-	amount REAL NOT NULL,
+	amount NUMERIC NOT NULL,
         constraint mvts_amount_positive CHECK (amount!=0)
 );
 
@@ -57,7 +57,7 @@ create table if not exists target_details (
 	id BIGINT NOT NULL UNIQUE DEFAULT nextval('seq_target_details') PRIMARY KEY,
 	target_id BIGINT NOT NULL references targets(id), 
 	value_date DATE NOT NULL,
-	amount REAL,
+	amount NUMERIC,
 	CONSTRAINT target_dets_id_date_unique UNIQUE(target_id,value_date)
 );
 
