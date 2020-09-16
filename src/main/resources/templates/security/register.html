@@ -6,29 +6,31 @@
 </head>
 <body>
 
+<nav th:replace="layouts :: navbar(caller='targets')"></nav>
+
 <div class="text-center">
-<h2>Create new account</h2>
-<form th:action="'/register/save'" th:object="${userAccount}" method="POST">
-    <style>
-        .setFieldWidth{
-            width:200px
-        }
-    </style>
+    <h2>Create new account</h2>
+    <form th:action="'/register/save'" th:object="${userAccount}" method="POST">
+        <style>
+            .setFieldWidth{
+             width:200px
+            }
+        </style>
 
-    <div>
-        <input class="setFieldWidth" th:field="*{username}" placeholder="Username"/>
-        <span class="text-danger" th:if="${#fields.hasErrors('username')}" th:errors="${userAccount.username}">Incorrect username</span>
-    </div><br/>
-    <div>
-        <input class="setFieldWidth" type="email" placeholder="Email" th:field="*{email}"/>
-        <span class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="${userAccount.email}">Incorrect email</span>
-    </div><br/>
-    <div>
-        <input class="setFieldWidth" type="password" th:field="*{password}" placeholder="Password"/>
-        <span class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="${userAccount.password}">Incorrect email</span>
-    </div><br/>
+        <div>
+            <input class="setFieldWidth" th:field="*{username}" placeholder="Username"/>
+            <span class="text-danger" th:if="${#fields.hasErrors('username')}" th:errors="${userAccount.username}">Incorrect username</span>
+        </div><br/>
+        <div>
+            <input class="setFieldWidth" type="email" placeholder="Email" th:field="*{email}"/>
+            <span class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="${userAccount.email}">Incorrect email</span>
+        </div><br/>
+        <div>
+            <input class="setFieldWidth" type="password" th:field="*{password}" placeholder="Password"/>
+            <span class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="${userAccount.password}">Incorrect email</span>
+        </div><br/>
 
-    <button class="btn btn-primary btn-sm mb-3 setFieldWidth">Submit</button>
+        <button class="btn btn-primary btn-sm mb-3 setFieldWidth">Submit</button>
 </form>
 </div>
 
