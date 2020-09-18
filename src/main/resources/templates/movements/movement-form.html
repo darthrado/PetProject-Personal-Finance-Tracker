@@ -4,13 +4,15 @@
 <head th:replace="layouts :: head(title='Movement Form')">
 </head>
 
-<body>
-    <nav th:replace="layouts :: navbar(caller='movements')"></nav>
+<body onload="onDocumentLoad()">
+<script type="text/javascript" th:src="@{/js/movements/manipulateCategoryButton.js}"></script>
+
+<nav th:replace="layouts :: navbar(caller='movements')"></nav>
 
     <h2 th:text="${action}+' Movement'"></h2>
 
     <div>
-        <form  th:action="${okButtonUrl}" th:object="${movement}" method="POST">
+        <form th:action="${okButtonUrl}" th:object="${movement}" method="POST">
             <input type="hidden" th:field="${movement.id}" />
             <div class="form group_row">
                 <span>Date:</span><br/>
@@ -37,16 +39,22 @@
                 <span>Description:</span><br/>
                 <textarea type="text" placeholder="Description" th:field="${movement.description}" th:disabled="${disableFormFields}"/>
             </div>
-            <div class="form group_row">
+            <div id="categorySelectDiv" class="form group_row">
                 <span>Category:</span><br/>
                 <select th:field="${movement.categoryName}" th:disabled="${disableFormFields}" />
                     <option th:each="category: ${categories}" th:value="${category.name}" th:text="${category.name}" th:selected="${movement.categoryName}==${category.name}"></option>
                 </select>
                 <span class="text-danger" th:if="${#fields.hasErrors('categoryName')}" th:errors="${movement.categoryName}">Incorrect Category</span>
+
+                <button type="button" id="newCategoryButton" th:onclick="'newCategoryClick('+${userNav.id}+')'">Add new category</button>
+                <input type="text" id="newCategoryInput" placeholder="Enter category name" />
+                <button type="button" id="saveCategoryButton" th:onclick="'saveCategoryClick('+${userNav.id}+')'">Save category</button>
+                <button type="button" id="discardButton" th:onclick="'discardCategoryClick('+${userNav.id}+')'">Discard</button>
             </div><br/>
             <button type="submit" th:text="${action}" class="btn btn-primary btn-sm mb-3"></button>
             <a th:href="${baseUrl}" class="btn btn-primary btn-sm mb-3">Back</a>
         </form>
     </div>
+
 </body>
 </html>

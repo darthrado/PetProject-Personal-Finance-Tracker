@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
@@ -85,6 +86,14 @@ public class CategoriesServiceImpl implements CategoriesService {
     @Override
     public CategoryDTO getCategoryById(Long categoryId) throws NoSuchElementException {
         MovementCategory category = categoriesRepository.findById(categoryId).orElseThrow();
+        return mapCategoryToDTO(category);
+    }
+
+
+    @Override
+    public CategoryDTO getCategoryByNameAndUserId(String categoryName, Long userId) {
+        MovementCategory category = categoriesRepository.findByUserIdAndName(userId,categoryName).orElseThrow();
+
         return mapCategoryToDTO(category);
     }
 

@@ -12,6 +12,8 @@ import java.util.NoSuchElementException;
 public interface CategoriesService {
     List<CategoryDTO> getActiveCategoriesForUser(Long userId);
     CategoryDTO getCategoryById(Long categoryId) throws NoSuchElementException;
+    CategoryDTO getCategoryByNameAndUserId(String categoryName,Long userId);
+
     CategoryDTO saveCategory(CategoryDTO category)  throws InvalidCategoryException;
     void changeCategoryFlagActive(Long categoryId,Boolean flagActive) throws IncorrectCategoryIdException;
     void deleteCategoryById(Long categoryId) throws IncorrectCategoryIdException;
