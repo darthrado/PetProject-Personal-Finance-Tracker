@@ -40,7 +40,7 @@ public class CategoriesRestController {
 
     @PostMapping("/{categoryName}/saveNew")
     @ResponseStatus(HttpStatus.CREATED)
-    public @ResponseBody CategoryApiDTO getSaveNewCategory(@PathVariable("userId") Long userId,
+    public @ResponseBody CategoryApiDTO saveNewCategory(@PathVariable("userId") Long userId,
                                      @PathVariable("categoryName") String categoryName) throws InvalidCategoryException {
 
         if(categoriesService.existsByNameAndUserId(categoryName,userId)){
