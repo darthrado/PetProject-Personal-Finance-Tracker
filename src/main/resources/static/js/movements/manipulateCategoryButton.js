@@ -109,6 +109,7 @@ async function processCategoryNotExistsUseCase(category){
     setDefaultVisibility();
     const successElement = createSuccessElement("Category Successfully Created");
     document.getElementById("categorySelectDiv").append(successElement);
+    modifyDomOnSuccess(category);
 }
 
 async function processCategoryInactiveUseCase(category){
@@ -120,6 +121,7 @@ async function processCategoryInactiveUseCase(category){
         const successElement = createSuccessElement("Category Enabled");
         document.getElementById("categorySelectDiv").append(successElement);
         setDefaultVisibility();
+        modifyDomOnSuccess(category);
     }
     else{
         const errorElement = createErrorElement("Category already exists but inactive");
@@ -129,23 +131,28 @@ async function processCategoryInactiveUseCase(category){
 
 }
 
+function createOptionElement(elementText){
+    let newElement = document.createElement("option");
+    newElement.value=elementText;
+    newElement.text=elementText;
+
+    return newElement;
+}
+
 async function processCategoryActiveUseCase(category){
     const errorElement = createErrorElement("Category already exists");
     document.getElementById("categorySelectDiv").append(errorElement);
 }
 
-/*make modify dom on success method*/
-/*on success add new category to list and select it*/
+async function modifyDomOnSuccess(category){
+
+const optionElement = createOptionElement(category);
+document.getElementById("categoryName").append(optionElement);
+document.getElementById("categoryName").value = category;
+}
+
 /*implement server calls for save and enable*/
 
-
-
-/*use case 1: category exists, not disabled - error message*/
-/*use case 2: category exists but disabled - prompt the user to enable it (4,5)*/
-/*use case 3: category not exists - create it, go to 6*/
-/*4: enable category then 6*/
-/*5: disable category:*/
-/*6: Add a li element in categories with the name and then select it. Restore new category componen to on load status*/
 
 
 
