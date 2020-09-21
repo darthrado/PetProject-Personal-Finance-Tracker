@@ -46,10 +46,10 @@
                 </select>
                 <span class="text-danger" th:if="${#fields.hasErrors('categoryName')}" th:errors="${movement.categoryName}">Incorrect Category</span>
 
-                <button type="button" id="newCategoryButton" th:onclick="'newCategoryClick('+${userNav.id}+')'">Add new category</button>
+                <button type="button" class="btn btn-primary btn-sm mb-3" id="newCategoryButton" th:onclick="'newCategoryClick('+${userNav.id}+')'">Add new category</button>
                 <input type="text" id="newCategoryInput" placeholder="Enter category name" />
-                <button type="button" id="saveCategoryButton" th:onclick="'saveCategoryClick('+${userNav.id}+')'">Save category</button>
-                <button type="button" id="discardButton" th:onclick="'discardCategoryClick('+${userNav.id}+')'">Discard</button>
+                <button type="button" class="btn btn-primary btn-sm mb-3" id="saveCategoryButton" th:onclick="'saveCategoryClick('+${userNav.id}+')'">Save category</button>
+                <button type="button" class="btn btn-primary btn-sm mb-3" id="discardButton" th:onclick="'discardCategoryClick('+${userNav.id}+')'">Discard</button>
             </div><br/>
             <button type="submit" th:text="${action}" class="btn btn-primary btn-sm mb-3"></button>
             <a th:href="${baseUrl}" class="btn btn-primary btn-sm mb-3">Back</a>
