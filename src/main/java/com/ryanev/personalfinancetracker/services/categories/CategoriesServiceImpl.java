@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -221,5 +222,10 @@ public class CategoriesServiceImpl implements CategoriesService {
     @Override
     public Boolean existsById(Long id) {
         return categoriesRepository.existsById(id);
+    }
+
+    @Override
+    public Boolean existsByNameAndUserId(String categoryName, Long userId) {
+        return categoriesRepository.findByUserIdAndName(userId,categoryName).isPresent();
     }
 }

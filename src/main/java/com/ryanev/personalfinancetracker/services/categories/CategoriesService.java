@@ -21,6 +21,7 @@ public interface CategoriesService {
     void createDefaultCategoriesForUser(Long userId) throws IncorrectUserIdException;
     Boolean isCategoryDefault(String categoryName);
     Boolean existsById(Long id);
+    Boolean existsByNameAndUserId(String categoryName,Long userId);
 
     List<CategoryDTO> getCategoriesForUser(Long userId);
 

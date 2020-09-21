@@ -10,22 +10,23 @@ function newCategoryClick(user) {
 async function saveCategoryClick(user) {
     const category = document.getElementById("newCategoryInput").value;
 
-    const promise = await fetch("/"+user+"/api/categories/"+category);
+    const promise = await apiCallGetCategory(user,category);
     if(promise.status===404){
-        await processCategoryNotExistsUseCase(category);
+        await processCategoryNotExistsUseCase(user,category);
     }
     else if (promise.status===200){
         const responseJson = await promise.json();
 
         if(responseJson.flagActive === true){
-            processCategoryActiveUseCase(category);
+            await processCategoryActiveUseCase(category);
         }
         else{
-            processCategoryInactiveUseCase(category);
+            await processCategoryInactiveUseCase(user,category);
         }
     }
     else{
-        //something went wrong
+        const errorElement = createErrorElement("Something went wrong!");
+        document.getElementById("categorySelectDiv").append(errorElement);
     }
   }
 
@@ -34,6 +35,16 @@ async function saveCategoryClick(user) {
     removeErrorElements();
   }
 
+
+async function apiCallGetCategory(user,category){
+    return fetch("/api/"+user+"/categories/"+category);
+}
+async function apiCallSaveCategory(user,category){
+    return fetch("/api/"+user+"/categories/"+category+"/saveNew", {method: 'POST'});
+}
+async function apiCallEnableCategory(user,category){
+    return fetch("/api/"+user+"/categories/"+category+"/enable", {method: 'PUT'});
+}
 
 /*Visibility Functions*/
 function setDefaultVisibility(){
@@ -94,34 +105,39 @@ function removeSuccessElements(){
 }
 
 
-/*Server Requests*/
-async function sendSaveCategoryRequest(category){
-    console.log("Todo sending save request for"+category);
+async function processCategoryNotExistsUseCase(user,category){
+    const saveRequest = await apiCallSaveCategory(user,category);
+
+    if(saveRequest.status === 201){
+        setDefaultVisibility();
+        const successElement = createSuccessElement("Category Successfully Created");
+        document.getElementById("categorySelectDiv").append(successElement);
+        modifyDomOnSuccess(category);
+    }
+    else{
+        const errorElement = createErrorElement("Something went wrong!");
+        document.getElementById("categorySelectDiv").append(errorElement);
+    }
+
 }
 
-async function sendEnableCategoryRequest(category){
-    console.log("Todo sending enable request for"+category);
-}
-
-
-async function processCategoryNotExistsUseCase(category){
-    await sendSaveCategoryRequest(category);
-    setDefaultVisibility();
-    const successElement = createSuccessElement("Category Successfully Created");
-    document.getElementById("categorySelectDiv").append(successElement);
-    modifyDomOnSuccess(category);
-}
-
-async function processCategoryInactiveUseCase(category){
+async function processCategoryInactiveUseCase(user,category){
 
     const flagActivateUser = confirm(`Category ${category} already exists but inactive. Activate?`);
 
     if(flagActivateUser){
-        await sendEnableCategoryRequest(category);
-        const successElement = createSuccessElement("Category Enabled");
-        document.getElementById("categorySelectDiv").append(successElement);
-        setDefaultVisibility();
-        modifyDomOnSuccess(category);
+        const saveRequest = await apiCallEnableCategory(user,category);
+        if(saveRequest.status === 200){
+            const successElement = createSuccessElement("Category Enabled");
+            document.getElementById("categorySelectDiv").append(successElement);
+            setDefaultVisibility();
+            modifyDomOnSuccess(category);
+        }
+        else{
+            const errorElement = createErrorElement("Something went wrong!");
+            document.getElementById("categorySelectDiv").append(errorElement);
+        }
+
     }
     else{
         const errorElement = createErrorElement("Category already exists but inactive");
