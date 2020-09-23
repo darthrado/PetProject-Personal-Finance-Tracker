@@ -2,7 +2,6 @@ package com.ryanev.personalfinancetracker.unit.api;
 
 
 import com.ryanev.personalfinancetracker.data.entities.User;
-import com.ryanev.personalfinancetracker.exceptions.InvalidCategoryException;
 import com.ryanev.personalfinancetracker.services.categories.CategoriesService;
 import com.ryanev.personalfinancetracker.services.dto.categories.CategoryDTO;
 import com.ryanev.personalfinancetracker.services.users.UserService;
@@ -96,7 +95,7 @@ public class CategoryRestControllerUnitTest {
         String categoryName = "SomeCategory";
         String userName = "testUser";
 
-        mockUser("testUser",userId,true);
+        mockUser(userName,userId,true);
 
         Mockito.when(categoriesService.getCategoryByNameAndUserId(categoryName,userId)).thenThrow(NoSuchElementException.class);
 
@@ -114,7 +113,7 @@ public class CategoryRestControllerUnitTest {
         String userName = "testUser";
         Long loggedUser = 23941L;
 
-        mockUser("testUser",loggedUser,true);
+        mockUser(userName,loggedUser,true);
         if(userId.equals(loggedUser)){
             throw new RuntimeException("Passed user can't be the same as logged user");
         }
@@ -158,10 +157,10 @@ public class CategoryRestControllerUnitTest {
         String categoryName = "SomeCategory";
         String userName = "testUser";
 
-        mockUser("testUser",userId,true);
+        mockUser(userName,userId,true);
 
         Mockito.when(categoriesService.existsByNameAndUserId(categoryName,userId)).thenReturn(false);
-        Mockito.when(categoriesService.getDefaultCategoriesForUser(userId)).thenReturn(List.of(TestCategoryBuilder.createValidCategory().withName("DefaultCateg").buildDTO()));
+        Mockito.when(categoriesService.getDefaultCategoriesForUser(userId)).thenReturn(List.of(TestCategoryBuilder.createValidCategory().withName("DefaultCategory").buildDTO()));
 
         mockMvc.perform(MockMvcRequestBuilders.post(getControllerBaseURL(userId)+"/"+categoryName+"/saveNew"))
                 .andExpect(MockMvcResultMatchers.status().isCreated());
@@ -181,10 +180,10 @@ public class CategoryRestControllerUnitTest {
         String categoryName = "SomeCategory";
         String userName = "testUser";
 
-        mockUser("testUser",userId,true);
+        mockUser(userName,userId,true);
 
         Mockito.when(categoriesService.existsByNameAndUserId(categoryName,userId)).thenReturn(false);
-        Mockito.when(categoriesService.getDefaultCategoriesForUser(userId)).thenReturn(List.of(TestCategoryBuilder.createValidCategory().withName("DefaultCateg").buildDTO()));
+        Mockito.when(categoriesService.getDefaultCategoriesForUser(userId)).thenReturn(List.of(TestCategoryBuilder.createValidCategory().withName("DefaultCategory").buildDTO()));
 
         mockMvc.perform(MockMvcRequestBuilders.post(getControllerBaseURL(userId)+"/"+categoryName+"/saveNew"))
                 .andExpect(MockMvcResultMatchers.status().isCreated())
@@ -218,7 +217,7 @@ public class CategoryRestControllerUnitTest {
         String userName = "testUser";
         Long loggedUser = 23941L;
 
-        mockUser("testUser",loggedUser,true);
+        mockUser(userName,loggedUser,true);
         if(userId.equals(loggedUser)){
             throw new RuntimeException("Passed user can't be the same as logged user");
         }
@@ -245,7 +244,7 @@ public class CategoryRestControllerUnitTest {
         String categoryName = "SomeCategory";
         String userName = "testUser";
 
-        mockUser("testUser",userId,true);
+        mockUser(userName,userId,true);
 
         Mockito.when(categoriesService.getCategoryByNameAndUserId(categoryName,userId))
                 .thenReturn(TestCategoryBuilder.createValidCategory().withName(categoryName).withId(categoryId).buildDTO());
@@ -264,7 +263,7 @@ public class CategoryRestControllerUnitTest {
         String categoryName = "SomeCategory";
         String userName = "testUser";
 
-        mockUser("testUser",userId,true);
+        mockUser(userName,userId,true);
 
         Mockito.when(categoriesService.getCategoryByNameAndUserId(categoryName,userId))
                 .thenReturn(TestCategoryBuilder.createValidCategory().withName(categoryName).withId(categoryId).buildDTO());
@@ -272,7 +271,7 @@ public class CategoryRestControllerUnitTest {
         mockMvc.perform(MockMvcRequestBuilders.put(getControllerBaseURL(userId)+"/"+categoryName+"/enable"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.name", Matchers.is(categoryName)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.flagActive", Matchers.is(true)));;
+                .andExpect(MockMvcResultMatchers.jsonPath("$.flagActive", Matchers.is(true)));
     }
 
     @Test
@@ -300,7 +299,7 @@ public class CategoryRestControllerUnitTest {
         String userName = "testUser";
         Long loggedUser = 23941L;
 
-        mockUser("testUser",loggedUser,true);
+        mockUser(userName,loggedUser,true);
         if(userId.equals(loggedUser)){
             throw new RuntimeException("Passed user can't be the same as logged user");
         }
