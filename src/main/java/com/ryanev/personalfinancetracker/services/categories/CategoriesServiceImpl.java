@@ -14,9 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -106,9 +104,9 @@ public class CategoriesServiceImpl implements CategoriesService {
     @Override
     public CategoryDTO saveCategory(CategoryDTO category) throws InvalidCategoryException {
 
-        Boolean flagCategoryExists=false;
+        boolean flagCategoryExists=false;
         if(category!=null){
-            flagCategoryExists = category.getId()==null?false:true;
+            flagCategoryExists = category.getId() != null;
         }
 
         validateCategory(category);
