@@ -31,6 +31,11 @@ public class CategoriesServiceImpl implements CategoriesService {
     private final List<String> defaultCategoryNames = List.of("Income(DEFAULT)","Other Expenses(DEFAULT)");
 
     private CategoryDTO mapCategoryToDTO(MovementCategory category){
+
+        if(category==null){
+            return null;
+        }
+
         CategoryDTO newDTO = new CategoryDTO();
         newDTO.setId(category.getId());
         newDTO.setName(category.getName());
@@ -93,7 +98,7 @@ public class CategoriesServiceImpl implements CategoriesService {
 
     @Override
     public CategoryDTO getCategoryByNameAndUserId(String categoryName, Long userId) {
-        MovementCategory category = categoriesRepository.findByUserIdAndName(userId,categoryName).orElseThrow();
+        MovementCategory category = categoriesRepository.findByUserIdAndName(userId,categoryName).orElse(null);
 
         return mapCategoryToDTO(category);
     }

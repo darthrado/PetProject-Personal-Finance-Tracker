@@ -68,16 +68,16 @@ public class CategoriesRestController {
                                  @PathVariable("categoryName") String categoryName) throws IncorrectCategoryIdException {
 
         CategoryApiDTO apiDTO;
-        try {
             CategoryDTO categoryDTO = categoriesService.getCategoryByNameAndUserId(categoryName,userId);
+
+            if(categoryDTO==null){
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            }
+
             categoriesService.changeCategoryFlagActive(categoryDTO.getId(),true);
             apiDTO = buildApiDTO(categoryDTO);
-        }
-        catch (NoSuchElementException e){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
 
-      return apiDTO;
+        return apiDTO;
     }
 
     private CategoryApiDTO buildApiDTO(CategoryDTO categoryDTO){

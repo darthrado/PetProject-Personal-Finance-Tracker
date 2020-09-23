@@ -1,7 +1,6 @@
 package com.ryanev.personalfinancetracker.unit.controller;
 
 import com.ryanev.personalfinancetracker.data.entities.User;
-import com.ryanev.personalfinancetracker.exceptions.IncorrectUserIdException;
 import com.ryanev.personalfinancetracker.services.dto.categories.CategoryDTO;
 import com.ryanev.personalfinancetracker.util.user.TestUserBuilder;
 import com.ryanev.personalfinancetracker.web.controllers.CategoriesController;
