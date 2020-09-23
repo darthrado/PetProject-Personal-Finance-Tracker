@@ -17,6 +17,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -92,6 +93,7 @@ public class CategoriesController {
         List<CategoryViewDTO> categoryViewDTOList = categoriesService.getCategoriesForUser(userId)
                 .stream()
                 .map(this::mapCategoryToViewDTO)
+                .sorted(Comparator.comparing(CategoryViewDTO::getFlagDefault).thenComparing(CategoryViewDTO::getActive).thenComparing(CategoryViewDTO::getName))
                 .collect(Collectors.toList());
 
         model.addAttribute("categoriesList",categoryViewDTOList);
