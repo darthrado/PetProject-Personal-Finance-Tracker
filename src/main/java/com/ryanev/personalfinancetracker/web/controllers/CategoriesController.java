@@ -93,7 +93,10 @@ public class CategoriesController {
         List<CategoryViewDTO> categoryViewDTOList = categoriesService.getCategoriesForUser(userId)
                 .stream()
                 .map(this::mapCategoryToViewDTO)
-                .sorted(Comparator.comparing(CategoryViewDTO::getFlagDefault).thenComparing(CategoryViewDTO::getActive).thenComparing(CategoryViewDTO::getName))
+                .sorted(Comparator
+                        .comparing(CategoryViewDTO::getFlagDefault)
+                        .thenComparing(CategoryViewDTO::getActive)
+                        .thenComparing(CategoryViewDTO::getName))
                 .collect(Collectors.toList());
 
         model.addAttribute("categoriesList",categoryViewDTOList);
