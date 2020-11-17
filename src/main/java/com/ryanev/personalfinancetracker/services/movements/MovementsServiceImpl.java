@@ -1,18 +1,23 @@
 package com.ryanev.personalfinancetracker.services.movements;
 import com.ryanev.personalfinancetracker.data.repo.categories.CategoriesRepository;
+import com.ryanev.personalfinancetracker.data.repo.movements.MovementFilterConditions;
 import com.ryanev.personalfinancetracker.data.repo.movements.MovementsRepository;
 import com.ryanev.personalfinancetracker.data.entities.Movement;
 import com.ryanev.personalfinancetracker.data.repo.users.UserRepository;
 import com.ryanev.personalfinancetracker.exceptions.InvalidMovementException;
 import com.ryanev.personalfinancetracker.services.crud_observer.CrudChangeNotifier;
 import com.ryanev.personalfinancetracker.services.dto.movements.MovementDTO;
+import com.ryanev.personalfinancetracker.services.dto.movements.MovementSearchFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Service
@@ -52,8 +57,9 @@ public class MovementsServiceImpl implements MovementsService {
 
     @Override
     public List<MovementDTO> getMovementsForUser(Long userId) {
+
         return movementsRepository
-                .findAllByUserId(userId)
+                .findAll(MovementFilterConditions.withUserId(userId))
                 .stream()
                 .map(this::mapMovementToDTO)
                 .collect(Collectors.toList());
@@ -88,6 +94,32 @@ public class MovementsServiceImpl implements MovementsService {
     public MovementDTO getMovementById(Long movementId) throws NoSuchElementException {
         Movement movement = movementsRepository.findById(movementId).orElseThrow();
         return mapMovementToDTO(movement);
+    }
+
+    @Override
+    public List<MovementDTO> getMovementsFromFilter(MovementSearchFilter filter) {
+        return movementsRepository.findAll(mapFilterToSpec(filter))
+                .stream()
+                .map(this::mapMovementToDTO)
+                .collect(Collectors.toList());
+    }
+
+    private Specification<Movement> mapFilterToSpec(MovementSearchFilter filter){
+
+        if(filter==null){
+            return null;
+        }
+
+        Specification<Movement> result = MovementFilterConditions.withUserId(filter.getUserId())
+                .and(MovementFilterConditions.withUserId(filter.getUserId()))
+                .and(MovementFilterConditions.withUserName(filter.getUserName()))
+                .and(MovementFilterConditions.withAmountFrom(filter.getAmountFrom()))
+                .and(MovementFilterConditions.withAmountTo(filter.getAmountTo()))
+                .and(MovementFilterConditions.withDateFrom(filter.getDateFrom()))
+                .and(MovementFilterConditions.withDateTo(filter.getDateTo()))
+                .and(MovementFilterConditions.withCategoryName(filter.getCategoryName()))
+                .and(MovementFilterConditions.withName(filter.getName()));
+        return result;
     }
 
 

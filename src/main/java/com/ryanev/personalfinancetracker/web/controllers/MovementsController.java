@@ -2,6 +2,8 @@ package com.ryanev.personalfinancetracker.web.controllers;
 
 import com.ryanev.personalfinancetracker.services.dto.categories.CategoryDTO;
 import com.ryanev.personalfinancetracker.services.dto.movements.MovementDTO;
+import com.ryanev.personalfinancetracker.services.dto.movements.MovementSearchFilter;
+import com.ryanev.personalfinancetracker.services.movements.MovementSearchFilterImpl;
 import com.ryanev.personalfinancetracker.web.dto.movements.MovementFormDTO;
 import com.ryanev.personalfinancetracker.web.dto.movements.MovementViewDTO;
 import com.ryanev.personalfinancetracker.exceptions.IncorrectCategoryIdException;
@@ -12,6 +14,7 @@ import com.ryanev.personalfinancetracker.services.categories.CategoriesService;
 import com.ryanev.personalfinancetracker.services.movements.MovementsService;
 import com.ryanev.personalfinancetracker.services.users.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,6 +23,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -99,15 +103,28 @@ public class MovementsController {
 
     @GetMapping
     public String movementsLandingPage(Model model,
-                                       @PathVariable("userId") Long userId) throws IncorrectUserIdException{
+                                       @PathVariable("userId") Long userId,
+                                       @RequestParam("category") @Nullable String categoryName,
+                                       @RequestParam("amtFrom") @Nullable Double amountFrom,
+                                       @RequestParam("amtTo") @Nullable Double amountTo,
+                                       @RequestParam("dateFrom") @Nullable LocalDate dateFrom,
+                                       @RequestParam("dateTo") @Nullable LocalDate dateTo,
+                                       @RequestParam("name") @Nullable String name) throws IncorrectUserIdException{
 
         if(!userService.existsById(userId)){
             throw new IncorrectUserIdException();
         }
 
-        //ToDO build optional search params and pass to service
-        //Todo understand Spring data specification interface https://spring.io/blog/2011/04/26/advanced-spring-data-jpa-specifications-and-querydsl/
-        List<MovementViewDTO> movementsList = movementsService.getMovementsForUser(userId)
+        MovementSearchFilter filter = MovementSearchFilterImpl.createFilterForUser(userId)
+                .withCategoryName(categoryName)
+                .withAmountFrom(amountFrom)
+                .withAmountTo(amountTo)
+                .withDateTo(dateTo)
+                .withDateFrom(dateFrom)
+                .withName(name)
+                .build();
+
+        List<MovementViewDTO> movementsList = movementsService.getMovementsFromFilter(filter)
                 .stream()
                 .map(this::mapMovementToViewDTO)
                 .sorted(Comparator.comparing(MovementViewDTO::getValueDate).reversed())

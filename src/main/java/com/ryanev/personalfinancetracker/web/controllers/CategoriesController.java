@@ -110,6 +110,7 @@ public class CategoriesController {
     public String newCategoryPage(Model model,
                                   @PathVariable("userId") Long userId) throws IncorrectUserIdException {
 
+
         if(!userService.existsById(userId)){
             throw new IncorrectUserIdException();
         }

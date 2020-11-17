@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div id="searchDiv">
+    <script></script><!--onclick js builder function -->
+
+    <input></input>
+    <input type="text" placeholder="Name" th:field="${movement.name}"/>
+    <input type="text" placeholder="CategoryName" th:field="${movement.name}"/>
+    <input type="number" step="0.01" th:field="${movement.unsignedAmount}"/>
+    <input type="number" step="0.01" th:field="${movement.unsignedAmount}"/>
+    <input type="date" th:field="${movement.valueDate}"/>
+    <input type="date" th:field="${movement.valueDate}"/>
+
+    <button>Filter</button>
+</div>
