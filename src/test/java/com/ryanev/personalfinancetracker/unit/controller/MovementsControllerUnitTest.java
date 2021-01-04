@@ -39,6 +39,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -90,7 +91,7 @@ public class MovementsControllerUnitTest {
 
         mockUser("testUser",userId,true);
 
-        Mockito.when(movementsService.getMovementsForUser(userId))
+        Mockito.when(movementsService.getMovementsFromFilter(any()))
                 .thenReturn(Collections.nCopies(expectedRecords, TestMovementBuilder.createValidMovement().buildDTO()));
 
         mockMvc.perform(MockMvcRequestBuilders.get(getControllerBaseURL(userId)))
@@ -118,7 +119,7 @@ public class MovementsControllerUnitTest {
                 .withDate(LocalDate.of(movementYear,movementMonth,movementDay))
                 .withCategory(movementCategory)
                 .buildDTO();
-        Mockito.when(movementsService.getMovementsForUser(userId)).thenReturn(List.of(existingMovement));
+        Mockito.when(movementsService.getMovementsFromFilter(any())).thenReturn(List.of(existingMovement));
 
         mockUser("testUser",userId,true);
 
@@ -158,7 +159,7 @@ public class MovementsControllerUnitTest {
 
         mockUser("testUser",userId,true);
 
-        Mockito.when(movementsService.getMovementsForUser(userId))
+        Mockito.when(movementsService.getMovementsFromFilter(any()))
                 .thenReturn(Collections.nCopies(expectedRecords, TestMovementBuilder
                         .createValidMovement()
                         .withUser(TestUserBuilder.createValidUser().withId(userId).build())
